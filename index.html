@@ -1739,7 +1739,7 @@ function clearChildForm(){
   });
 }
 
-function saveChild(){
+async function saveChild(){
 
   const firstName =
     document.getElementById("childFirstName").value.trim();
@@ -1763,9 +1763,7 @@ function saveChild(){
   });
 
   const child = {
-
     id,
-
     lastName,
     firstName,
 
@@ -1793,7 +1791,6 @@ function saveChild(){
     },
 
     contract:{
-
       type:
         document.getElementById("contractType").value,
 
@@ -1838,7 +1835,6 @@ function saveChild(){
       notes:
         document.getElementById("contractNotes").value.trim()
     }
-
   };
 
   const existingIndex =
@@ -1850,17 +1846,138 @@ function saveChild(){
     children.push(child);
   }
 
+  // Sauvegarde locale immédiate : les données restent disponibles
+  // dans ce navigateur même si la synchronisation échoue.
   localStorage.setItem(
     STORAGE.children,
     JSON.stringify(children)
   );
+
+  // Synchronisation Supabase si la connexion et l'espace sont disponibles.
+  try {
+    const db = window.supabaseClient;
+    const workspace = window.espaceConnecte;
+
+    if(!db || !workspace || !workspace.id){
+      throw new Error(
+        "Connexion Supabase ou espace de travail indisponible."
+      );
+    }
+
+    // Retrouver l'enfant à partir de son identifiant local stable.
+    const { data: existingChild, error: lookupError } =
+      await db
+        .from("children")
+        .select("id")
+        .eq("workspace_id", workspace.id)
+        .eq("local_id", id)
+        .maybeSingle();
+
+    if(lookupError) throw lookupError;
+
+    const childData = {
+      workspace_id: workspace.id,
+      local_id: id,
+      first_name: firstName,
+      last_name: lastName,
+      birth_date: child.birthDate || null
+    };
+
+    let databaseChildId;
+
+    if(existingChild){
+      const { data, error } = await db
+        .from("children")
+        .update(childData)
+        .eq("id", existingChild.id)
+        .select("id")
+        .single();
+
+      if(error) throw error;
+      databaseChildId = data.id;
+
+    }else{
+      const { data, error } = await db
+        .from("children")
+        .insert(childData)
+        .select("id")
+        .single();
+
+      if(error) throw error;
+      databaseChildId = data.id;
+    }
+
+    // Retrouver le contrat existant de cet enfant.
+    const { data: existingContract, error: contractLookupError } =
+      await db
+        .from("contracts")
+        .select("id")
+        .eq("child_id", databaseChildId)
+        .is("archived_at", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    if(contractLookupError) throw contractLookupError;
+
+    const contractData = {
+      child_id: databaseChildId,
+      start_date: child.contract.start || child.hireDate || null,
+      end_date: child.contract.end || null,
+      contract_data: {
+        ...child.contract,
+        hireDate: child.hireDate,
+        parent: child.parent
+      }
+    };
+
+    if(existingContract){
+      const { error } = await db
+        .from("contracts")
+        .update(contractData)
+        .eq("id", existingContract.id);
+
+      if(error) throw error;
+
+    }else{
+      const { error } = await db
+        .from("contracts")
+        .insert(contractData);
+
+      if(error) throw error;
+    }
+
+    // Conserver l'UUID Supabase associé à l'enfant local.
+    child.supabaseId = databaseChildId;
+
+    localStorage.setItem(
+      STORAGE.children,
+      JSON.stringify(children)
+    );
+
+  } catch(error) {
+    console.error("Erreur de synchronisation Supabase :", error);
+
+    closeModal("childModal");
+    renderChildren();
+    populatePresenceSelectors();
+    renderPointage();
+
+    alert(
+      "Enfant enregistré dans ce navigateur, mais la synchronisation Supabase a échoué. " +
+      "Ne supprime pas tes données. Détail : " +
+      (error.message || "erreur inconnue")
+    );
+
+    return;
+  }
 
   closeModal("childModal");
   renderChildren();
   populatePresenceSelectors();
   renderPointage();
 
-  alert("Enfant enregistré 🌿");
+  alert("Enfant enregistré et synchronisé avec Supabase 🌿");
 }
 
 function renderChildren(){
