@@ -1365,53 +1365,62 @@ footer{
 
     </div>
 
-    <div class="field">
-      <label>Horaires habituels / prévus</label>
-      <input id="usualHours" type="text" placeholder="Ex. 8h00 - 17h00">
+   <div class="field">
+  <label>Horaires prévus au contrat – semaine type</label>
+
+  <div class="weekly-schedule">
+
+    <div class="schedule-row">
+      <label><input type="checkbox" class="workday" value="1"> Lundi</label>
+      <input type="time" id="scheduleStart1" aria-label="Début lundi">
+      <span>à</span>
+      <input type="time" id="scheduleEnd1" aria-label="Fin lundi">
     </div>
 
-    <div class="field">
-      <label>Jours travaillés</label>
-
-      <div class="checkbox-group">
-
-        <label class="day-check">
-          <input type="checkbox" value="1" class="workday">
-          Lun.
-        </label>
-
-        <label class="day-check">
-          <input type="checkbox" value="2" class="workday">
-          Mar.
-        </label>
-
-        <label class="day-check">
-          <input type="checkbox" value="3" class="workday">
-          Mer.
-        </label>
-
-        <label class="day-check">
-          <input type="checkbox" value="4" class="workday">
-          Jeu.
-        </label>
-
-        <label class="day-check">
-          <input type="checkbox" value="5" class="workday">
-          Ven.
-        </label>
-
-        <label class="day-check">
-          <input type="checkbox" value="6" class="workday">
-          Sam.
-        </label>
-
-        <label class="day-check">
-          <input type="checkbox" value="0" class="workday">
-          Dim.
-        </label>
-
-      </div>
+    <div class="schedule-row">
+      <label><input type="checkbox" class="workday" value="2"> Mardi</label>
+      <input type="time" id="scheduleStart2" aria-label="Début mardi">
+      <span>à</span>
+      <input type="time" id="scheduleEnd2" aria-label="Fin mardi">
     </div>
+
+    <div class="schedule-row">
+      <label><input type="checkbox" class="workday" value="3"> Mercredi</label>
+      <input type="time" id="scheduleStart3" aria-label="Début mercredi">
+      <span>à</span>
+      <input type="time" id="scheduleEnd3" aria-label="Fin mercredi">
+    </div>
+
+    <div class="schedule-row">
+      <label><input type="checkbox" class="workday" value="4"> Jeudi</label>
+      <input type="time" id="scheduleStart4" aria-label="Début jeudi">
+      <span>à</span>
+      <input type="time" id="scheduleEnd4" aria-label="Fin jeudi">
+    </div>
+
+    <div class="schedule-row">
+      <label><input type="checkbox" class="workday" value="5"> Vendredi</label>
+      <input type="time" id="scheduleStart5" aria-label="Début vendredi">
+      <span>à</span>
+      <input type="time" id="scheduleEnd5" aria-label="Fin vendredi">
+    </div>
+
+    <div class="schedule-row">
+      <label><input type="checkbox" class="workday" value="6"> Samedi</label>
+      <input type="time" id="scheduleStart6" aria-label="Début samedi">
+      <span>à</span>
+      <input type="time" id="scheduleEnd6" aria-label="Fin samedi">
+    </div>
+
+    <div class="schedule-row">
+      <label><input type="checkbox" class="workday" value="0"> Dimanche</label>
+      <input type="time" id="scheduleStart0" aria-label="Début dimanche">
+      <span>à</span>
+      <input type="time" id="scheduleEnd0" aria-label="Fin dimanche">
+    </div>
+
+  </div>
+</div>
 
     <div class="field">
       <label>Notes du contrat</label>
@@ -1782,15 +1791,24 @@ function openChildModal(id = null){
     document.getElementById("snackFee").value =
       c.snackFee || "";
 
-    document.getElementById("usualHours").value =
-      c.usualHours || "";
+   document.getElementById("contractNotes").value =
+  c.notes || "";
 
-    document.getElementById("contractNotes").value =
-      c.notes || "";
+document.querySelectorAll(".workday").forEach(cb => {
 
-    document.querySelectorAll(".workday").forEach(cb => {
-      cb.checked = (c.workdays || []).includes(Number(cb.value));
-    });
+  const day = Number(cb.value);
+
+  cb.checked = (c.workdays || []).includes(day);
+
+  const horaires = c.dailyHours?.[day] || {};
+
+  document.getElementById("scheduleStart" + day).value =
+    horaires.start || "";
+
+  document.getElementById("scheduleEnd" + day).value =
+    horaires.end || "";
+
+});
 
   } else {
 
@@ -1828,8 +1846,16 @@ function clearChildForm(){
   document.getElementById("maintenanceFee").value = "";
   document.getElementById("mealFee").value = "";
   document.getElementById("snackFee").value = "";
-  document.getElementById("usualHours").value = "";
-  document.getElementById("contractNotes").value = "";
+document.querySelectorAll(".workday").forEach(cb => {
+
+  cb.checked = false;
+
+  const day = Number(cb.value);
+
+  document.getElementById("scheduleStart" + day).value = "";
+  document.getElementById("scheduleEnd" + day).value = "";
+
+});  document.getElementById("contractNotes").value = "";
 
   document.querySelectorAll(".workday").forEach(cb => {
     cb.checked = false;
@@ -1853,11 +1879,25 @@ async function saveChild(){
     document.getElementById("childId").value ||
     "child_" + Date.now();
 
-  const workdays = [];
+const workdays = [];
+const dailyHours = {};
 
-  document.querySelectorAll(".workday:checked").forEach(cb => {
-    workdays.push(Number(cb.value));
-  });
+document.querySelectorAll(".workday").forEach(cb => {
+
+  const day = Number(cb.value);
+
+  if(cb.checked){
+
+    workdays.push(day);
+
+    dailyHours[day] = {
+      start: document.getElementById("scheduleStart" + day).value,
+      end: document.getElementById("scheduleEnd" + day).value
+    };
+
+  }
+
+});
 
   const child = {
     id,
@@ -1924,8 +1964,7 @@ async function saveChild(){
       snackFee:
         Number(document.getElementById("snackFee").value) || 0,
 
-      usualHours:
-        document.getElementById("usualHours").value.trim(),
+      dailyHours,
 
       workdays,
 
@@ -2131,7 +2170,18 @@ function renderChildren(){
 
         <p>
           <strong>Horaires :</strong>
-          ${escapeHtml(c.usualHours || "—")}
+         ${escapeHtml(
+  (c.workdays || []).map(day => {
+    const jours = ["Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam."];
+    const h = c.dailyHours?.[day];
+
+    return jours[day] + (
+      h && h.start && h.end
+        ? " " + h.start + "-" + h.end
+        : ""
+    );
+  }).join(" · ") || c.usualHours || "—"
+)}
         </p>
 
         <div class="actions" style="margin-top:15px;">
@@ -2409,17 +2459,23 @@ function renderPointage(){
       const saved =
         pointages[today][child.id] || {};
 
-      const workdays =
-        contract.workdays || [];
+     const workdays =
+  contract.workdays || [];
 
-      const isPlanned =
-        workdays.includes(weekday);
+const isPlanned =
+  workdays.includes(weekday);
 
-      const plannedSchedule =
-        isPlanned
-          ? (contract.usualHours || "Horaires non renseignés")
-          : "Pas prévu au contrat";
+const dailySchedule =
+  contract.dailyHours?.[weekday];
 
+const plannedSchedule =
+  isPlanned
+    ? (
+        dailySchedule && dailySchedule.start && dailySchedule.end
+          ? dailySchedule.start + " - " + dailySchedule.end
+          : "Horaires non renseignés"
+      )
+    : "Pas prévu au contrat";
       let statusText =
         "En attente de pointage";
 
@@ -2826,13 +2882,21 @@ function generatePresence(){
 
     const isPlanned = (contract.workdays || []).includes(weekday);
 
-    const plannedSchedule =
-      saved.plannedSchedule ??
-      (isPlanned ? (contract.usualHours || "") : "");
+ const dailySchedule =
+  contract.dailyHours?.[weekday];
 
-    const plannedHours =
-      saved.plannedHours ??
-      (isPlanned ? inferHoursFromSchedule(plannedSchedule) : 0);
+const contractSchedule =
+  dailySchedule && dailySchedule.start && dailySchedule.end
+    ? dailySchedule.start + " - " + dailySchedule.end
+    : "";
+
+const plannedSchedule =
+  saved.plannedSchedule ??
+  (isPlanned ? contractSchedule : "");
+
+const plannedHours =
+  saved.plannedHours ??
+  (isPlanned ? inferHoursFromSchedule(plannedSchedule) : 0);
 
     let actualSchedule = saved.actualSchedule || "";
     let actualHours = Number(saved.actualHours) || 0;
