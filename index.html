@@ -1448,10 +1448,15 @@ footer{
       <button class="close" onclick="closeModal('eventModal')">×</button>
     </div>
 
-    <div class="field">
-      <label>Date</label>
-      <input id="eventDate" type="date">
-    </div>
+  <div class="field">
+  <label>Date de début</label>
+  <input id="eventDate" type="date">
+</div>
+
+<div class="field">
+  <label>Date de fin</label>
+  <input id="eventEndDate" type="date">
+</div>
 
     <div class="field">
       <label>Type</label>
@@ -2282,8 +2287,11 @@ function renderCalendar(){
       String(month+1).padStart(2,"0") + "-" +
       String(day).padStart(2,"0");
 
-    const dayEvents =
-      events.filter(e => e.date === dateString);
+  const dayEvents =
+  events.filter(e =>
+    e.date <= dateString &&
+    (e.endDate || e.date) >= dateString
+  );
 
     html += `
       <div class="calendar-day"
@@ -2324,6 +2332,9 @@ function openEventModal(date="", eventId=""){
 
   document.getElementById("eventDate").value =
     event ? event.date : (date || localDateISO());
+
+  document.getElementById("eventEndDate").value =
+  event ? (event.endDate || event.date) : (date || localDateISO());
 
   document.getElementById("eventType").value =
     event ? event.type : "Mes congés";
@@ -2366,12 +2377,21 @@ function saveEvent(){
   const eventId =
     document.getElementById("eventId").value;
 
-  const eventData = {
-    date,
-    type: document.getElementById("eventType").value,
-    childId: document.getElementById("eventChild").value,
-    description: document.getElementById("eventDescription").value.trim()
-  };
+  const endDate =
+  document.getElementById("eventEndDate").value;
+
+if(!endDate || endDate < date){
+  alert("La date de fin doit être égale ou après la date de début.");
+  return;
+}
+
+const eventData = {
+  date,
+  endDate,
+  type: document.getElementById("eventType").value,
+  childId: document.getElementById("eventChild").value,
+  description: document.getElementById("eventDescription").value.trim()
+};
 
   if(eventId){
 
