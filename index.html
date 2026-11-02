@@ -53,6 +53,12 @@ header{
   font-size:25px;
   font-weight:bold;
 }
+  .logo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:50%;
+}
 
 header h1{
   margin:0;
@@ -880,7 +886,9 @@ footer{
 <body>
 
 <header>
-  <div class="logo">AF</div>
+  <div class="logo">
+  <img src="logo-mca.png.jpg" alt="Mon Carnet d’Accueil">
+</div>
   <h1>Mon Carnet d’Accueil</h1>
   <p>Assistante maternelle Mélissa</p>
 </header>
@@ -906,7 +914,9 @@ footer{
   </div>
 
   <div class="card profile-card">
-    <div class="logo" style="width:60px;height:60px;font-size:20px;">AF</div>
+    <div class="logo" style="width:60px;height:60px;">
+  <img src="logo-mca.png.jpg" alt="Mon Carnet d’Accueil">
+</div>
     <div class="profile-mini" id="homeProfileName">Mélissa — Assistante maternelle</div>
     <div class="profile-sub">Un accueil doux, familial et bienveillant 🌿</div>
     <button class="btn" onclick="openProfile()">Voir / modifier mon profil</button>
