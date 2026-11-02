@@ -2055,6 +2055,8 @@ async function saveChild(){
   } catch(error) {
     console.error("Erreur de synchronisation Supabase :", error);
 
+    await sauvegarderEspace();
+
     closeModal("childModal");
     renderChildren();
     populatePresenceSelectors();
