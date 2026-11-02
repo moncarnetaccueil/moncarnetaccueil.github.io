@@ -1440,7 +1440,9 @@ footer{
 <div id="eventModal" class="modal">
 
   <div class="modal-box" style="max-width:550px;">
-
+    
+  <input type="hidden" id="eventId">
+    
     <div class="modal-header">
       <h2>📅 Ajouter un événement</h2>
       <button class="close" onclick="closeModal('eventModal')">×</button>
@@ -1474,9 +1476,14 @@ footer{
       <input id="eventDescription" type="text">
     </div>
 
-    <div class="actions" style="margin-top:20px;">
-      <button class="btn" onclick="saveEvent()">Enregistrer</button>
-    </div>
+   <div class="actions" style="margin-top:20px;">
+
+  <button class="btn danger" id="deleteEventButton"
+    style="display:none;" onclick="deleteEvent()">Supprimer</button>
+
+  <button class="btn" onclick="saveEvent()">Enregistrer</button>
+
+</div>
 
   </div>
 </div>
@@ -2284,12 +2291,13 @@ function renderCalendar(){
 
         <div class="calendar-number">${day}</div>
 
-        ${dayEvents.map(e =>
-          `<span class="event-dot">
-            ${escapeHtml(e.type)}
-            ${e.description ? " — " + escapeHtml(e.description) : ""}
-          </span>`
-        ).join("")}
+       ${dayEvents.map(e =>
+  `<span class="event-dot"
+    onclick="event.stopPropagation(); openEventModal('${dateString}', '${e.id}')">
+    ${escapeHtml(e.type)}
+    ${e.description ? " — " + escapeHtml(e.description) : ""}
+  </span>`
+).join("")}
 
       </div>
     `;
@@ -2307,13 +2315,21 @@ function changeCalendarMonth(delta){
   renderCalendar();
 }
 
-function openEventModal(date=""){
+function openEventModal(date="", eventId=""){
+
+  const event = events.find(e => e.id === eventId);
+
+  document.getElementById("eventId").value =
+    event ? event.id : "";
 
   document.getElementById("eventDate").value =
-    date ||
-    localDateISO();
+    event ? event.date : (date || localDateISO());
 
-  document.getElementById("eventDescription").value = "";
+  document.getElementById("eventType").value =
+    event ? event.type : "Mes congés";
+
+  document.getElementById("eventDescription").value =
+    event ? event.description || "" : "";
 
   const select =
     document.getElementById("eventChild");
@@ -2325,6 +2341,14 @@ function openEventModal(date=""){
         ${escapeHtml(c.firstName)} ${escapeHtml(c.lastName)}
       </option>`
     ).join("");
+
+  select.value = event ? event.childId || "" : "";
+
+  document.querySelector("#eventModal h2").textContent =
+    event ? "📅 Modifier un événement" : "📅 Ajouter un événement";
+
+  document.getElementById("deleteEventButton").style.display =
+  event ? "inline-block" : "none";
 
   openModal("eventModal");
 }
@@ -2339,24 +2363,33 @@ function saveEvent(){
     return;
   }
 
-  const event = {
+  const eventId =
+    document.getElementById("eventId").value;
 
-    id:"event_" + Date.now(),
-
+  const eventData = {
     date,
-
-    type:
-      document.getElementById("eventType").value,
-
-    childId:
-      document.getElementById("eventChild").value,
-
-    description:
-      document.getElementById("eventDescription").value.trim()
-
+    type: document.getElementById("eventType").value,
+    childId: document.getElementById("eventChild").value,
+    description: document.getElementById("eventDescription").value.trim()
   };
 
-  events.push(event);
+  if(eventId){
+
+    const index =
+      events.findIndex(e => e.id === eventId);
+
+    if(index >= 0){
+      events[index] = {...events[index], ...eventData};
+    }
+
+  }else{
+
+    events.push({
+      id: "event_" + Date.now(),
+      ...eventData
+    });
+
+  }
 
   localStorage.setItem(
     STORAGE.events,
@@ -2364,7 +2397,34 @@ function saveEvent(){
   );
 
   programmerSauvegardeEspace();
-  
+
+  closeModal("eventModal");
+  renderCalendar();
+}
+
+  function deleteEvent(){
+
+  const eventId =
+    document.getElementById("eventId").value;
+
+  if(!eventId) return;
+
+  if(!confirm("Supprimer cet événement ?")) return;
+
+  const index =
+    events.findIndex(e => e.id === eventId);
+
+  if(index >= 0){
+    events.splice(index, 1);
+  }
+
+  localStorage.setItem(
+    STORAGE.events,
+    JSON.stringify(events)
+  );
+
+  programmerSauvegardeEspace();
+
   closeModal("eventModal");
   renderCalendar();
 }
