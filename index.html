@@ -2899,6 +2899,109 @@ function openPresenceForChild(id){
   generatePresence();
 }
 
+  function getFrenchPublicHolidays(year){
+
+  // Calcul de la date de Pâques
+  const a = year % 19;
+  const b = Math.floor(year / 100);
+  const c = year % 100;
+  const d = Math.floor(b / 4);
+  const e = b % 4;
+  const f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4);
+  const k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7;
+  const m = Math.floor((a + 11 * h + 22 * l) / 451);
+
+  const month = Math.floor((h + l - 7 * m + 114) / 31);
+  const day = ((h + l - 7 * m + 114) % 31) + 1;
+
+  const easter = new Date(year, month - 1, day);
+
+  function dateAfterEaster(offset){
+    const date = new Date(easter);
+    date.setDate(date.getDate() + offset);
+
+    return date.getFullYear() + "-" +
+      String(date.getMonth() + 1).padStart(2,"0") + "-" +
+      String(date.getDate()).padStart(2,"0");
+  }
+
+  function fixedDate(month, day){
+    return year + "-" +
+      String(month).padStart(2,"0") + "-" +
+      String(day).padStart(2,"0");
+  }
+
+  return [
+    {date: fixedDate(1,1), name:"Jour de l'An"},
+    {date: dateAfterEaster(0), name:"Pâques"},
+    {date: dateAfterEaster(1), name:"Lundi de Pâques"},
+    {date: fixedDate(5,1), name:"Fête du Travail"},
+    {date: fixedDate(5,8), name:"Victoire 1945"},
+    {date: dateAfterEaster(39), name:"Ascension"},
+    {date: dateAfterEaster(50), name:"Lundi de Pentecôte"},
+    {date: fixedDate(7,14), name:"Fête nationale"},
+    {date: fixedDate(8,15), name:"Assomption"},
+    {date: fixedDate(11,1), name:"Toussaint"},
+    {date: fixedDate(11,11), name:"Armistice"},
+    {date: fixedDate(12,25), name:"Noël"}
+  ];
+}
+
+
+function getPresenceEvents(dateString, childId){
+
+  const found = [];
+
+  // Événements enregistrés dans le calendrier
+  events.forEach(e => {
+
+    const eventType = e.type || "";
+
+    const concernsDate =
+      e.date <= dateString &&
+      (e.endDate || e.date) >= dateString;
+
+    if(!concernsDate) return;
+
+    if(
+      eventType === "Mes absences" ||
+      eventType === "Mes congés"
+    ){
+      found.push(e.description || "Mes absences");
+    }
+
+    if(
+      (eventType === "Absence enfant" ||
+       eventType === "Congé enfant") &&
+      e.childId === childId
+    ){
+      found.push(e.description || "Absence enfant");
+    }
+
+    if(
+      eventType === "Jours fériés" ||
+      eventType === "Jour férié"
+    ){
+      found.push(e.description || "Jour férié");
+    }
+  });
+
+  // Jours fériés automatiques
+  const year = Number(dateString.substring(0,4));
+
+  getFrenchPublicHolidays(year).forEach(holiday => {
+    if(holiday.date === dateString){
+      found.push(holiday.name);
+    }
+  });
+
+  return [...new Set(found)];
+}
+  
 function generatePresence(){
 
   const childId = document.getElementById("presenceChild").value;
@@ -2939,6 +3042,7 @@ function generatePresence(){
   const contract = child.contract || {};
 
   let rows = "";
+  let totalPresenceDays = 0;
   let totalPlanned = 0;
   let totalActual = 0;
   let totalIE = 0;
@@ -2955,6 +3059,9 @@ function generatePresence(){
       year + "-" +
       String(month + 1).padStart(2,"0") + "-" +
       String(day).padStart(2,"0");
+    
+    const presenceEvents = getPresenceEvents(dateString, childId);
+    const isNonPresenceDay = presenceEvents.length > 0;
 
     const saved = sheet.days[dateString] || {};
     const pointage = pointages[dateString]?.[childId];
@@ -2977,38 +3084,47 @@ const plannedHours =
   saved.plannedHours ??
   (isPlanned ? inferHoursFromSchedule(plannedSchedule) : 0);
 
-    let actualSchedule = saved.actualSchedule || "";
-    let actualHours = Number(saved.actualHours) || 0;
+ let actualSchedule = saved.actualSchedule || "";
+let actualHours = Number(saved.actualHours) || 0;
 
-    // Report du pointage tant que la ligne n'a pas été corrigée manuellement.
-    if(pointage && !saved.manualActualOverride){
+// Report du pointage tant que la ligne n'a pas été corrigée manuellement.
+if(pointage && !saved.manualActualOverride){
 
-      if(pointage.status === "absent"){
-        actualSchedule = "Absent";
-        actualHours = 0;
-      }else if(pointage.arrival && pointage.departure){
-        actualSchedule = pointage.arrival + " - " + pointage.departure;
-        actualHours = calculateElapsedHours(
-          pointage.arrival,
-          pointage.departure
-        );
-      }else if(pointage.arrival){
-        actualSchedule = pointage.arrival + " - …";
-        actualHours = 0;
-      }else{
-        actualSchedule = "";
-        actualHours = 0;
-      }
+  if(pointage.status === "absent"){
+    actualSchedule = "Absent";
+    actualHours = 0;
+  }else if(pointage.arrival && pointage.departure){
+    actualSchedule = pointage.arrival + " - " + pointage.departure;
+    actualHours = calculateElapsedHours(
+      pointage.arrival,
+      pointage.departure
+    );
+  }else if(pointage.arrival){
+    actualSchedule = pointage.arrival + " - …";
+    actualHours = 0;
+  }else{
+    actualSchedule = "";
+    actualHours = 0;
+  }
 
-      saved.actualSchedule = actualSchedule;
-      saved.actualHours = actualHours;
-      sheet.days[dateString] = saved;
-    }
+  saved.actualSchedule = actualSchedule;
+  saved.actualHours = actualHours;
+  sheet.days[dateString] = saved;
+}
+
+// Les événements du calendrier sont prioritaires
+if(isNonPresenceDay){
+  actualSchedule = "Non travaillé";
+  actualHours = 0;
+}
 
     const overtime = Math.max(0, actualHours - Number(plannedHours || 0));
 
     totalPlanned += Number(plannedHours) || 0;
     totalActual += actualHours;
+    if(!isNonPresenceDay && actualHours > 0){
+  totalPresenceDays++;
+}
     totalOvertime += overtime;
 
     if(saved.ie) totalIE++;
@@ -3026,7 +3142,11 @@ const plannedHours =
           ${dayLabel}<br>
           ${String(day).padStart(2,"0")}/${String(month+1).padStart(2,"0")}
         </td>
-
+<td>
+  ${presenceEvents.map(eventName =>
+    <span>${escapeHtml(eventName)}</span>
+  ).join("<br>")}
+</td>
         <td>
           <input type="text"
             value="${escapeAttribute(plannedSchedule)}"
@@ -3108,6 +3228,7 @@ const plannedHours =
           <thead>
             <tr>
               <th rowspan="2">Jour</th>
+              <th rowspan="2">Événement</th>
               <th colspan="2">Horaires prévus au contrat</th>
               <th colspan="2">Horaires réels</th>
               <th rowspan="2">Suppl.<br>heures</th>
@@ -3137,7 +3258,9 @@ const plannedHours =
         <div class="summary-box">Goûters<strong>${totalSnacks}</strong></div>
         <div class="summary-box">Divers<strong>${totalDivers}</strong></div>
         <div class="summary-box">Jours prévus<strong>${countPlannedDays(child,year,month)}</strong></div>
+        <div class="summary-box">Jours de présence<strong>${totalPresenceDays}</strong></div>
       </div>
+      
 
       <h3 class="section-title">📝 Observations</h3>
       <textarea id="presenceObservations"
