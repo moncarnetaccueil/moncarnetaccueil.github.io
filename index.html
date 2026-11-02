@@ -1495,7 +1495,92 @@ let salaries = JSON.parse(localStorage.getItem(STORAGE.salaries) || "[]");
 let pointages = JSON.parse(localStorage.getItem(STORAGE.pointages) || "{}");
 
 let calendarDate = new Date();
+  
+// =========================
+// SYNCHRONISATION SUPABASE
+// =========================
 
+let timerSauvegardeEspace = null;
+
+async function sauvegarderEspace(){
+
+  const db = window.supabaseClient;
+  const workspace = window.espaceConnecte;
+
+  if(!db || !workspace || !workspace.id){
+    return;
+  }
+
+  const data = {
+    children,
+    events,
+    sheets,
+    profile,
+    salaries,
+    pointages
+  };
+
+  const { error } = await db
+    .from("app_workspace_data")
+    .upsert({
+      workspace_id: workspace.id,
+      data,
+      updated_at: new Date().toISOString()
+    }, {
+      onConflict: "workspace_id"
+    });
+
+  if(error){
+    console.error("Erreur de synchronisation :", error);
+  }
+}
+
+function programmerSauvegardeEspace(){
+
+  clearTimeout(timerSauvegardeEspace);
+
+  timerSauvegardeEspace = setTimeout(() => {
+    sauvegarderEspace();
+  }, 500);
+}
+
+async function chargerEspace(){
+
+  const db = window.supabaseClient;
+  const workspace = window.espaceConnecte;
+
+  const { data: ligne, error } = await db
+    .from("app_workspace_data")
+    .select("data")
+    .eq("workspace_id", workspace.id)
+    .maybeSingle();
+
+  if(error) throw error;
+
+  if(ligne && ligne.data){
+
+    const donnees = ligne.data;
+
+    children = Array.isArray(donnees.children) ? donnees.children : children;
+    events = Array.isArray(donnees.events) ? donnees.events : events;
+    sheets = donnees.sheets || sheets;
+    profile = donnees.profile || profile;
+    salaries = Array.isArray(donnees.salaries) ? donnees.salaries : salaries;
+    pointages = donnees.pointages || pointages;
+
+  }
+
+  localStorage.setItem(STORAGE.children, JSON.stringify(children));
+  localStorage.setItem(STORAGE.events, JSON.stringify(events));
+  localStorage.setItem(STORAGE.sheets, JSON.stringify(sheets));
+  localStorage.setItem(STORAGE.profile, JSON.stringify(profile));
+  localStorage.setItem(STORAGE.salaries, JSON.stringify(salaries));
+  localStorage.setItem(STORAGE.pointages, JSON.stringify(pointages));
+
+  if(!ligne){
+    await sauvegarderEspace();
+  }
+}
 
 /* =========================
    NAVIGATION
@@ -1600,6 +1685,8 @@ function saveProfile(){
   };
 
   localStorage.setItem(STORAGE.profile, JSON.stringify(profile));
+
+  programmerSauvegardeEspace();
 
   const firstName = profile.firstName || "Mélissa";
 
@@ -1982,6 +2069,8 @@ async function saveChild(){
     return;
   }
 
+  programmerSauvegardeEspace();
+
   closeModal("childModal");
   renderChildren();
   populatePresenceSelectors();
@@ -2222,6 +2311,8 @@ function saveEvent(){
     JSON.stringify(events)
   );
 
+  programmerSauvegardeEspace();
+  
   closeModal("eventModal");
   renderCalendar();
 }
@@ -2256,11 +2347,12 @@ function formatFrenchDate(date = new Date()){
 }
 
 function savePointages(){
-
   localStorage.setItem(
     STORAGE.pointages,
     JSON.stringify(pointages)
   );
+
+  programmerSauvegardeEspace();
 }
 
 function renderPointage(){
@@ -2996,6 +3088,8 @@ function saveSheets(){
     STORAGE.sheets,
     JSON.stringify(sheets)
   );
+
+  programmerSauvegardeEspace();
 }
 
 function printPresence(){
@@ -3282,6 +3376,8 @@ function saveSalary(){
     JSON.stringify(salaries)
   );
 
+  programmerSauvegardeEspace
+  
   document.getElementById("salaryAmount").value = "";
   document.getElementById("payslipFile").value = "";
 
@@ -3474,6 +3570,8 @@ console.log("Vérification du profil pour :", utilisateur.id);
     window.utilisateurConnecte = utilisateur;
     window.profilConnecte = profil;
     window.espaceConnecte = espace;
+    
+    await chargerEspace();
 
     document.body.style.visibility = "visible";
     initialize();
