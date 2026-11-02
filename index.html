@@ -2019,7 +2019,7 @@ async function saveChild(){
 
     const contractData = {
       child_id: databaseChildId,
-      start_date: child.contract.start || child.hireDate || null,
+      start_date: child.contract.start || child.hireDate || new Date().toISOString().slice(0,10),
       end_date: child.contract.end || null,
       contract_data: {
         ...child.contract,
