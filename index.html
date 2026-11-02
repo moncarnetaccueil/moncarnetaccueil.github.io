@@ -3197,28 +3197,35 @@ function inferHoursFromSchedule(schedule){
 
   if(!schedule) return 0;
 
-  const matches =
-    schedule.match(/(\d{1,2})\s*h?\s*(\d{0,2})?\s*[-–]\s*(\d{1,2})\s*h?\s*(\d{0,2})?/i);
+  function convertirHeure(texte){
 
-  if(!matches) return 0;
+    const match = texte.trim().match(
+      /^(\d{1,2})(?:(?::|h)\s*(\d{1,2}))?$/i
+    );
 
-  const h1 =
-    Number(matches[1]) +
-    ((Number(matches[2]) || 0) / 60);
+    if(!match) return null;
 
-  const h2 =
-    Number(matches[3]) +
-    ((Number(matches[4]) || 0) / 60);
-
-  let result = h2 - h1;
-
-  if(result < 0){
-    result += 24;
+    return Number(match[1]) +
+      (Number(match[2] || 0) / 60);
   }
 
-  return Math.round(result * 100) / 100;
-}
+  const morceaux = schedule.split(/\s*[-–]\s*/);
 
+  if(morceaux.length !== 2) return 0;
+
+  const debut = convertirHeure(morceaux[0]);
+  const fin = convertirHeure(morceaux[1]);
+
+  if(debut === null || fin === null) return 0;
+
+  let resultat = fin - debut;
+
+  if(resultat < 0){
+    resultat += 24;
+  }
+
+  return Math.round(resultat * 100) / 100;
+}
 function countPlannedDays(child,year,month){
 
   const contract =
