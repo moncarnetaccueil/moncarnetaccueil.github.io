@@ -749,8 +749,8 @@ footer{
 }
 
 @page {
-  size: A4 landscape;
-  margin: 5mm;
+  size: A4 portrait;
+  margin: 4mm;
 }
 
 @media print {
@@ -761,7 +761,7 @@ footer{
     padding: 0 !important;
     background: white !important;
     color: #333 !important;
-    font-size: 8px !important;
+    font-size: 7px !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -798,18 +798,27 @@ footer{
     width: 100% !important;
     max-width: none !important;
     margin: 0 !important;
-    padding: 3px !important;
+    padding: 2px !important;
     box-sizing: border-box !important;
     box-shadow: none !important;
     border: 0 !important;
     border-radius: 0 !important;
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
   }
 
   .presence-print-header {
-    margin-bottom: 5px !important;
-    padding-bottom: 4px !important;
+    margin-bottom: 3px !important;
+    padding-bottom: 3px !important;
+    gap: 5px !important;
+  }
+
+  .presence-print-header img {
+    width: 45px !important;
+    height: 45px !important;
+  }
+
+  .presence-print-header h2 {
+    font-size: 12px !important;
+    margin: 0 0 2px !important;
   }
 
   .presence-wrap {
@@ -822,57 +831,75 @@ footer{
     min-width: 0 !important;
     table-layout: fixed !important;
     border-collapse: collapse !important;
-    font-size: 7px !important;
+    font-size: 6px !important;
   }
 
   .presence-table th,
   .presence-table td {
-    padding: 2px !important;
-    font-size: 7px !important;
-    line-height: 1.1 !important;
+    padding: 1px !important;
+    font-size: 6px !important;
+    line-height: 1 !important;
     border: 1px solid #ccc !important;
-    overflow-wrap: anywhere;
+    overflow-wrap: anywhere !important;
   }
 
   .presence-table input {
     width: 100% !important;
     min-width: 0 !important;
+    height: 12px !important;
     padding: 0 !important;
     margin: 0 !important;
     border: 0 !important;
     background: transparent !important;
-    font-size: 7px !important;
+    font-size: 6px !important;
     color: #222 !important;
   }
 
+  .presence-table input[type="checkbox"] {
+    width: 9px !important;
+    height: 9px !important;
+  }
+
   .section-title {
-    margin: 5px 0 3px !important;
-    font-size: 10px !important;
+    margin: 3px 0 2px !important;
+    font-size: 8px !important;
   }
 
   .month-summary {
-    gap: 3px !important;
-    margin: 3px 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 2px !important;
+    margin: 2px 0 !important;
   }
 
   .summary-box {
-    padding: 3px !important;
-    font-size: 7px !important;
+    min-width: 0 !important;
+    padding: 2px !important;
+    margin: 0 !important;
+    font-size: 6px !important;
+    line-height: 1.1 !important;
   }
 
   textarea {
-    min-height: 25px !important;
-    padding: 3px !important;
-    font-size: 7px !important;
+    min-height: 18px !important;
+    max-height: 25px !important;
+    padding: 2px !important;
+    font-size: 6px !important;
   }
 
   .signature-box {
-    min-height: 25px !important;
-    padding: 3px !important;
+    min-height: 20px !important;
+    padding: 2px !important;
+    margin: 0 !important;
   }
 
   .grid {
-    gap: 5px !important;
+    gap: 3px !important;
+  }
+
+  #presences button,
+  #presences .no-print {
+    display: none !important;
   }
 }
 </style>
