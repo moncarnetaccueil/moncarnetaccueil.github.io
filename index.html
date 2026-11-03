@@ -2054,10 +2054,16 @@ document.querySelectorAll(".workday").forEach(cb => {
 
 });
 
+const existingChild = children.find(c => c.id === id);
+
   const child = {
     id,
     lastName,
     firstName,
+
+    color: existingChild?.color || (
+      "hsl(" + Math.floor(Math.random() * 360) + ", 55%, 65%)"
+    ),
 
     birthDate:
       document.getElementById("childBirthDate").value,
@@ -2303,7 +2309,19 @@ function renderChildren(){
      onclick="openChildDetail('${child.id}')"
      style="cursor:pointer;">
 
-        <h3>👶 ${escapeHtml(child.firstName)} ${escapeHtml(child.lastName)}</h3>
+        <h3>
+  👶
+  <span style="
+    display:inline-block;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:${escapeHtml(child.color || '#8fa58b')};
+    margin-right:5px;
+    vertical-align:middle;
+  "></span>
+  ${escapeHtml(child.firstName)} ${escapeHtml(child.lastName)}
+</h3>
 
         <p>
           <strong>Date de naissance :</strong>
@@ -2395,8 +2413,16 @@ function openChildDetail(id){
     );
   }).join("<br>") || show(c.usualHours);
 
-  document.getElementById("childDetailTitle").textContent =
-    "👶 " + child.firstName + " " + child.lastName;
+ document.getElementById("childDetailTitle").innerHTML =
+    `👶 <span style="
+      display:inline-block;
+      width:13px;
+      height:13px;
+      border-radius:50%;
+      background:${escapeHtml(child.color || '#8fa58b')};
+      margin:0 7px;
+      vertical-align:middle;
+    "></span>${escapeHtml(child.firstName)} ${escapeHtml(child.lastName)}`;
 
   document.getElementById("childDetailContent").innerHTML = `
 
