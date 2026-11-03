@@ -3888,6 +3888,10 @@ const p =
         const a =
           Number(day.actualHours) || 0;
 
+        planned += p;
+        actual += a;
+        overtime += Math.max(0, a - p);
+
         if(day.ie) ie++;
         if(day.meal) meals++;
         if(day.snack) snacks++;
@@ -3896,10 +3900,6 @@ const p =
       });
 
     }
-
-planned = Number(sheet.totalPlanned) || 0;
-actual = Number(sheet.totalActual) || 0;
-overtime = Number(sheet.totalOvertime) || 0;
 
     const c =
       child.contract || {};
