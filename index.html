@@ -498,6 +498,22 @@ textarea{
   background:white;
 }
 
+  .signature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.signature-grid .signature-box {
+  min-height: 75px;
+  padding: 8px;
+  border: 1px solid #b8c5ae;
+  border-radius: 8px;
+  background: #fff;
+  margin-top: 6px;
+}
+
 .recap-table{
   width:100%;
   border-collapse:collapse;
@@ -812,13 +828,13 @@ footer{
   }
 
   .presence-print-header img {
-    width: 45px !important;
-    height: 45px !important;
+    width: 65px !important;
+    height: 65px !important;
   }
 
   .presence-print-header h2 {
-    font-size: 12px !important;
-    margin: 0 0 2px !important;
+    font-size: 16px !important;
+    margin: 0 0 5px !important;
   }
 
   .presence-wrap {
@@ -826,19 +842,19 @@ footer{
     overflow: visible !important;
   }
 
-  .presence-table {
+.presence-table {
     width: 100% !important;
     min-width: 0 !important;
     table-layout: fixed !important;
     border-collapse: collapse !important;
-    font-size: 6px !important;
+    font-size: 8px !important;
   }
 
   .presence-table th,
   .presence-table td {
-    padding: 1px !important;
-    font-size: 6px !important;
-    line-height: 1 !important;
+    padding: 2px !important;
+    font-size: 8px !important;
+    line-height: 1.15 !important;
     border: 1px solid #ccc !important;
     overflow-wrap: anywhere !important;
   }
@@ -887,11 +903,21 @@ footer{
     font-size: 6px !important;
   }
 
-  .signature-box {
-    min-height: 20px !important;
-    padding: 2px !important;
-    margin: 0 !important;
-  }
+ .signature-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  margin-top: 5px !important;
+}
+
+.signature-grid .signature-box {
+  min-height: 65px !important;
+  padding: 6px !important;
+  margin-top: 4px !important;
+  border: 1px solid #b8c5ae !important;
+  border-radius: 8px !important;
+  background: white !important;
+}
 
   .grid {
     gap: 3px !important;
@@ -901,6 +927,11 @@ footer{
   #presences .no-print {
     display: none !important;
   }
+
+  #presences .notice {
+    display: none !important;
+  }
+  
 }
 </style>
 </head>
@@ -3261,7 +3292,7 @@ if(!isWeekend){
             FEUILLE DE PRÉSENCE
           </h2>
 
-          <div style="font-size:14px;">
+          <div style="font-size:17px;">
             <strong>
               ${escapeHtml(child.firstName)} ${escapeHtml(child.lastName)}
             </strong>
@@ -3338,7 +3369,7 @@ if(!isWeekend){
         placeholder="Observations éventuelles...">${escapeHtml(sheet.observations || "")}</textarea>
 
       <h3 class="section-title">✍️ Validation</h3>
-      <div class="grid">
+      <div class="grid signature-grid">
         <div>
           <label>Signature de l'assistante maternelle</label>
           <div class="signature-box">${escapeHtml(sheet.assistantSignature || "")}</div>
