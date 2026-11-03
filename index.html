@@ -490,6 +490,24 @@ textarea{
   margin-top:5px;
 }
 
+  /* Couleurs du récapitulatif mensuel */
+
+.summary-prevision{
+  background:#E9E0D0;
+}
+
+.summary-mensualisation{
+  background:#DCE7D8;
+}
+
+.summary-frais{
+  background:#EADFD9;
+}
+
+.summary-realise{
+  background:#A9B99F;
+}
+  
 .signature-box{
   border:1px dashed var(--brown);
   min-height:90px;
@@ -3349,21 +3367,20 @@ if(!isWeekend){
         </table>
       </div>
 
-      <h3 class="section-title">📊 Récapitulatif du mois</h3>
-      <div class="month-summary">
-        <div class="summary-box">Heures prévues<strong>${totalPlanned.toFixed(2)} h</strong></div>
-        <div class="summary-box">Heures mensualisées<strong>${contract.monthlyHours || 0} h</strong></div>
-        <div class="summary-box">IE<strong>${totalIE}</strong></div>
-        <div class="summary-box">Repas<strong>${totalMeals}</strong></div>
-        <div class="summary-box">Jours prévus<strong>${countPlannedDays(child,year,month)}</strong></div>
-        <div class="summary-box">Jours mensualisés<strong>${contract.monthlyDays || 0}</strong></div>
-        <div class="summary-box">Goûters<strong>${totalSnacks}</strong></div>
-        <div class="summary-box">Divers<strong>${totalDivers}</strong></div>
-        <div class="summary-box">Heures réelles<strong>${totalActual.toFixed(2)} h</strong></div>
-        <div class="summary-box">Jours de présence<strong>${totalPresenceDays}</strong></div>
-        <div class="summary-box">Heures supplémentaires<strong>${totalOvertime.toFixed(2)} h</strong></div>
-        
-      </div>
+     <h3 class="section-title">📊 Récapitulatif du mois</h3>
+<div class="month-summary">
+  <div class="summary-box summary-prevision">Heures prévues<strong>${totalPlanned.toFixed(2)} h</strong></div>
+  <div class="summary-box summary-mensualisation">Heures mensualisées<strong>${contract.monthlyHours || 0} h</strong></div>
+  <div class="summary-box summary-frais">IE<strong>${totalIE}</strong></div>
+  <div class="summary-box summary-frais">Repas<strong>${totalMeals}</strong></div>
+  <div class="summary-box summary-prevision">Jours prévus<strong>${countPlannedDays(child,year,month)}</strong></div>
+  <div class="summary-box summary-mensualisation">Jours mensualisés<strong>${contract.monthlyDays || 0}</strong></div>
+  <div class="summary-box summary-frais">Goûters<strong>${totalSnacks}</strong></div>
+  <div class="summary-box summary-frais">Divers<strong>${totalDivers}</strong></div>
+  <div class="summary-box summary-realise">Heures réelles<strong>${totalActual.toFixed(2)} h</strong></div>
+  <div class="summary-box summary-realise">Jours de présence<strong>${totalPresenceDays}</strong></div>
+  <div class="summary-box summary-realise">Heures supplémentaires<strong>${totalOvertime.toFixed(2)} h</strong></div>
+</div>
       
 
       <h3 class="section-title">📝 Observations</h3>
