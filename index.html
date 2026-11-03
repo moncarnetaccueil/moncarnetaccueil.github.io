@@ -323,6 +323,44 @@ textarea{
   padding:25px;
 }
 
+  /* Fiche de consultation d'un enfant */
+
+.child-detail-box{
+  max-width:900px;
+  max-height:calc(100vh - 40px);
+  overflow-y:auto;
+}
+
+.child-detail-content{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.child-detail-section{
+  background:white;
+  border:1px solid var(--beige-dark);
+  border-radius:12px;
+  padding:15px;
+  min-width:0;
+}
+
+.child-detail-section h3{
+  color:var(--brown);
+  margin-top:0;
+}
+
+@media(max-width:600px){
+  .child-detail-content{
+    grid-template-columns:1fr;
+  }
+
+  .child-detail-box{
+    padding:16px;
+    margin:10px auto;
+  }
+}
+
 .modal-header{
   display:flex;
   justify-content:space-between;
@@ -1506,7 +1544,42 @@ footer{
   </div>
 </div>
 
+<!-- FICHE DE CONSULTATION ENFANT -->
+<div id="childDetailModal" class="modal">
 
+  <div class="modal-box child-detail-box">
+
+    <div class="modal-header">
+      <h2 id="childDetailTitle">👶 Fiche enfant</h2>
+      <button class="close"
+        onclick="closeModal('childDetailModal')">×</button>
+    </div>
+
+    <div id="childDetailContent" class="child-detail-content">
+    </div>
+
+    <div class="actions" style="margin-top:20px;">
+
+      <button class="btn"
+        id="childDetailEditButton">
+        Modifier
+      </button>
+
+      <button class="btn light"
+        id="childDetailPresenceButton">
+        📝 Présence
+      </button>
+
+      <button class="btn danger"
+        id="childDetailDeleteButton">
+        Supprimer
+      </button>
+
+    </div>
+
+  </div>
+</div>
+  
 <!-- MODAL EVENEMENT -->
 <div id="eventModal" class="modal">
 
@@ -2226,7 +2299,9 @@ function renderChildren(){
     const c = child.contract || {};
 
     return `
-      <div class="child-card">
+      <div class="child-card"
+     onclick="openChildDetail('${child.id}')"
+     style="cursor:pointer;">
 
         <h3>👶 ${escapeHtml(child.firstName)} ${escapeHtml(child.lastName)}</h3>
 
@@ -2269,17 +2344,17 @@ function renderChildren(){
         <div class="actions" style="margin-top:15px;">
 
           <button class="btn small"
-            onclick="openChildModal('${child.id}')">
+            onclick="event.stopPropagation(); openChildModal('${child.id}')"
             Modifier
           </button>
 
           <button class="btn light small"
-            onclick="openPresenceForChild('${child.id}')">
+            onclick="event.stopPropagation(); openPresenceForChild('${child.id}')"
             📝 Présence
           </button>
 
           <button class="btn danger small"
-            onclick="deleteChild('${child.id}')">
+            onclick="event.stopPropagation(); deleteChild('${child.id}')"
             Supprimer
           </button>
 
@@ -2291,6 +2366,112 @@ function renderChildren(){
   }).join("");
 }
 
+function openChildDetail(id){
+
+  const child = children.find(c => c.id === id);
+
+  if(!child) return;
+
+  const c = child.contract || {};
+  const p = child.parent || {};
+
+  const show = value =>
+    value !== undefined && value !== null && value !== ""
+      ? escapeHtml(String(value))
+      : "—";
+
+  const showDate = value =>
+    value ? formatDate(value) : "—";
+
+  const jours = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+
+  const horaires = (c.workdays || []).map(day => {
+    const h = c.dailyHours?.[day] || {};
+
+    return jours[day] + (
+      h.start && h.end
+        ? " : " + h.start + " à " + h.end
+        : ""
+    );
+  }).join("<br>") || show(c.usualHours);
+
+  document.getElementById("childDetailTitle").textContent =
+    "👶 " + child.firstName + " " + child.lastName;
+
+  document.getElementById("childDetailContent").innerHTML = `
+
+    <div class="child-detail-section">
+      <h3>👶 Informations de l'enfant</h3>
+      <p><strong>Nom :</strong> ${show(child.lastName)}</p>
+      <p><strong>Prénom :</strong> ${show(child.firstName)}</p>
+      <p><strong>Date de naissance :</strong> ${showDate(child.birthDate)}</p>
+      <p><strong>Date d'embauche :</strong> ${showDate(child.hireDate)}</p>
+    </div>
+
+    <div class="child-detail-section">
+      <h3>👨‍👩‍👧 Parent employeur</h3>
+      <p><strong>Nom :</strong> ${show(p.lastName)}</p>
+      <p><strong>Prénom :</strong> ${show(p.firstName)}</p>
+      <p><strong>Adresse :</strong> ${show(p.address)}</p>
+      <p><strong>Téléphone :</strong> ${show(p.phone)}</p>
+      <p><strong>N° Pajemploi :</strong> ${show(p.pajemploi)}</p>
+    </div>
+
+    <div class="child-detail-section">
+      <h3>📄 Contrat de travail</h3>
+      <p><strong>Type :</strong> ${show(c.type)}</p>
+      <p><strong>Date de début :</strong> ${showDate(c.start)}</p>
+      <p><strong>Date de fin :</strong> ${showDate(c.end)}</p>
+      <p><strong>Heures par semaine :</strong> ${show(c.weeklyHours)}</p>
+      <p><strong>Semaines travaillées :</strong> ${show(c.workedWeeks)}</p>
+      <p><strong>Semaines d'absence :</strong> ${show(c.absentWeeks)}</p>
+      <p><strong>Heures mensualisées :</strong> ${show(c.monthlyHours)}</p>
+      <p><strong>Jours mensualisés :</strong> ${show(c.monthlyDays)}</p>
+    </div>
+
+    <div class="child-detail-section">
+      <h3>💶 Tarifs et indemnités</h3>
+      <p><strong>Taux horaire :</strong> ${show(c.hourlyRate)} €</p>
+      <p><strong>Indemnité d'entretien :</strong> ${show(c.maintenanceFee)} €</p>
+      <p><strong>Indemnité repas :</strong> ${show(c.mealFee)} €</p>
+      <p><strong>Indemnité goûter :</strong> ${show(c.snackFee)} €</p>
+    </div>
+
+    <div class="child-detail-section">
+      <h3>🕒 Horaires prévus</h3>
+      <p>${horaires}</p>
+    </div>
+
+    <div class="child-detail-section">
+      <h3>📝 Notes du contrat</h3>
+      <p style="white-space:pre-wrap;">${show(c.notes)}</p>
+    </div>
+
+    <div class="child-detail-section">
+      <h3>🔐 Espace parents</h3>
+      <p>Emplacement prévu pour la création de l'accès parent et son QR code.</p>
+    </div>
+
+  `;
+
+  document.getElementById("childDetailEditButton").onclick = () => {
+    closeModal("childDetailModal");
+    openChildModal(id);
+  };
+
+  document.getElementById("childDetailPresenceButton").onclick = () => {
+    closeModal("childDetailModal");
+    openPresenceForChild(id);
+  };
+
+  document.getElementById("childDetailDeleteButton").onclick = () => {
+    closeModal("childDetailModal");
+    deleteChild(id);
+  };
+
+  openModal("childDetailModal");
+}
+  
 function deleteChild(id){
 
   if(!confirm("Supprimer cet enfant et ses données de test ?")){
