@@ -3352,6 +3352,8 @@ if(!isWeekend){
       <h3 class="section-title">📊 Récapitulatif du mois</h3>
       <div class="month-summary">
         <div class="summary-box">Heures prévues<strong>${totalPlanned.toFixed(2)} h</strong></div>
+        <div class="summary-box">Heures mensualisées<strong>${contract.monthlyHours || 0} h</strong></div>
+        <div class="summary-box">Jours mensualisés<strong>${contract.monthlyDays || 0}</strong></div>
         <div class="summary-box">Heures réelles<strong>${totalActual.toFixed(2)} h</strong></div>
         <div class="summary-box">Heures supplémentaires<strong>${totalOvertime.toFixed(2)} h</strong></div>
         <div class="summary-box">IE<strong>${totalIE}</strong></div>
