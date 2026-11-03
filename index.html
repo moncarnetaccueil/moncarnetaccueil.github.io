@@ -3071,51 +3071,65 @@ const contractSchedule =
     ? dailySchedule.start + " - " + dailySchedule.end
     : "";
 
+const isWeekend = weekday === 0 || weekday === 6;
+
 const plannedSchedule =
-  saved.plannedSchedule ??
-  (isPlanned ? contractSchedule : "");
+  isWeekend
+    ? ""
+    : (
+        saved.plannedSchedule ??
+        (isPlanned ? contractSchedule : "")
+      );
 
 const plannedHours =
-  saved.plannedHours ??
-  (isPlanned ? inferHoursFromSchedule(plannedSchedule) : 0);
+  isWeekend
+    ? 0
+    : (
+        saved.plannedHours ??
+        (isPlanned ? inferHoursFromSchedule(plannedSchedule) : 0)
+      );
 
 let actualSchedule = "";
 let actualHours = 0;
 
-if(saved.manualActualOverride){
-  actualSchedule = saved.actualSchedule || "";
-  actualHours = Number(saved.actualHours) || 0;
-}
+if(!isWeekend){
 
-// Report du pointage tant que la ligne n'a pas été corrigée manuellement.
-if(pointage && !saved.manualActualOverride){
+  if(saved.manualActualOverride){
+    actualSchedule = saved.actualSchedule || "";
+    actualHours = Number(saved.actualHours) || 0;
+  }
 
-  if(pointage.status === "absent"){
-    actualSchedule = "Absent";
-    actualHours = 0;
-  }else if(pointage.arrival && pointage.departure){
-    actualSchedule = pointage.arrival + " - " + pointage.departure;
-    actualHours = calculateElapsedHours(
-      pointage.arrival,
-      pointage.departure
-    );
-  }else if(pointage.arrival){
-    actualSchedule = pointage.arrival + " - …";
-    actualHours = 0;
-  }else{
-    actualSchedule = "";
+  // Report du pointage tant que la ligne n'a pas été corrigée manuellement.
+  if(pointage && !saved.manualActualOverride){
+
+    if(pointage.status === "absent"){
+      actualSchedule = "Absent";
+      actualHours = 0;
+    }else if(pointage.arrival && pointage.departure){
+      actualSchedule = pointage.arrival + " - " + pointage.departure;
+      actualHours = calculateElapsedHours(
+        pointage.arrival,
+        pointage.departure
+      );
+    }else if(pointage.arrival){
+      actualSchedule = pointage.arrival + " - …";
+      actualHours = 0;
+    }else{
+      actualSchedule = "";
+      actualHours = 0;
+    }
+
+    saved.actualSchedule = actualSchedule;
+    saved.actualHours = actualHours;
+    sheet.days[dateString] = saved;
+  }
+
+  // Les événements du calendrier sont prioritaires
+  if(isNonPresenceDay){
+    actualSchedule = "Non travaillé";
     actualHours = 0;
   }
 
-  saved.actualSchedule = actualSchedule;
-  saved.actualHours = actualHours;
-  sheet.days[dateString] = saved;
-}
-
-// Les événements du calendrier sont prioritaires
-if(isNonPresenceDay){
-  actualSchedule = "Non travaillé";
-  actualHours = 0;
 }
 
     const overtime = Math.max(0, actualHours - Number(plannedHours || 0));
@@ -3147,31 +3161,31 @@ if(isNonPresenceDay){
             `<span>${escapeHtml(eventName)}</span>`
           ).join("<br>")}
         </td>
-        <td>
-          <input type="text"
-            value="${escapeAttribute(plannedSchedule)}"
-            onchange="updatePresenceDay('${key}','${dateString}','plannedSchedule',this.value)"
-            placeholder="8h-17h">
-        </td>
+       <td>
+  <input type="text"
+    value="${escapeAttribute(plannedSchedule)}"
+    onchange="updatePresenceDay('${key}','${dateString}','plannedSchedule',this.value)"
+    placeholder="">
+</td>
 
-        <td>
-          <input type="number" step="0.25" min="0"
-            value="${Number(plannedHours).toFixed(2)}"
-            onchange="updatePresenceDay('${key}','${dateString}','plannedHours',this.value)">
-        </td>
+<td>
+  <input type="number" step="0.25" min="0"
+    value="${isWeekend ? "" : Number(plannedHours).toFixed(2)}"
+    onchange="updatePresenceDay('${key}','${dateString}','plannedHours',this.value)">
+</td>
 
-        <td>
-          <input type="text"
-            value="${escapeAttribute(actualSchedule)}"
-            onchange="updatePresenceDay('${key}','${dateString}','actualSchedule',this.value)"
-            placeholder="8h-17h">
-        </td>
+<td>
+  <input type="text"
+    value="${escapeAttribute(actualSchedule)}"
+    onchange="updatePresenceDay('${key}','${dateString}','actualSchedule',this.value)"
+    placeholder="">
+</td>
 
-        <td>
-          <input type="number" step="0.01" min="0"
-            value="${actualSchedule === "" && !saved.manualActualOverride ? "" : Number(actualHours).toFixed(2)}"
-            onchange="updatePresenceDay('${key}','${dateString}','actualHours',this.value)">
-        </td>
+<td>
+  <input type="number" step="0.01" min="0"
+    value="${isWeekend || (actualSchedule === "" && !saved.manualActualOverride) ? "" : Number(actualHours).toFixed(2)}"
+    onchange="updatePresenceDay('${key}','${dateString}','actualHours',this.value)">
+</td>
 
         <td>${overtime.toFixed(2)}</td>
 
