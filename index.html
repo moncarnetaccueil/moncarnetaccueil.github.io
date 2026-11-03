@@ -3857,7 +3857,10 @@ function renderRecap(){
       Object.values(sheet.days).forEach(day => {
 
         const p =
-          Number(day.plannedHours) || 0;
+  day.plannedHours !== undefined &&
+  day.plannedHours !== null
+    ? Number(day.plannedHours) || 0
+    : inferHoursFromSchedule(day.plannedSchedule || "");
 
         const a =
           Number(day.actualHours) || 0;
@@ -3891,7 +3894,7 @@ function renderRecap(){
         <td>${overtime.toFixed(2)} h</td>
 
         <td>
-          ${c.monthlyDays || 0}
+          ${countPlannedDays(child,year,month)}
         </td>
 
         <td>
