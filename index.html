@@ -3854,13 +3854,30 @@ function renderRecap(){
 
     if(sheet?.days){
 
-      Object.values(sheet.days).forEach(day => {
+      Object.entries(sheet.days).forEach(([dateString, day]) => {
 
-        const p =
+      const date = new Date(dateString + "T12:00:00");
+const weekday = date.getDay();
+
+const contract = child.contract || {};
+
+const dailySchedule = contract.dailyHours?.[weekday];
+
+const contractSchedule =
+  dailySchedule && dailySchedule.start && dailySchedule.end
+    ? dailySchedule.start + " - " + dailySchedule.end
+    : "";
+
+const schedule =
+  day.plannedSchedule || contractSchedule;
+
+const p =
   day.plannedHours !== undefined &&
   day.plannedHours !== null
     ? Number(day.plannedHours) || 0
-    : inferHoursFromSchedule(day.plannedSchedule || "");
+    : (contract.workdays || []).includes(weekday)
+      ? inferHoursFromSchedule(schedule)
+      : 0;
 
         const a =
           Number(day.actualHours) || 0;
