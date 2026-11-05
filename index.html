@@ -2741,6 +2741,81 @@ function toggleTousDestinatairesJournal(button){
   button.classList.toggle("selected", shouldSelect);
 }
 
+  async function publierJournal(){
+
+  const db = window.supabaseClient;
+  const workspace = window.espaceConnecte;
+
+  const textarea =
+    document.getElementById("journalContent");
+
+  if(!db || !workspace || !workspace.id){
+    alert("Impossible de retrouver ton espace professionnel.");
+    return;
+  }
+
+  const content = textarea.value.trim();
+
+  const recipients = Array.from(
+    document.querySelectorAll(
+      "#journalChildren .journal-child-chip.selected"
+    )
+  ).map(chip => chip.dataset.childId);
+
+  if(!content){
+    alert("Écris d'abord ton petit message.");
+    return;
+  }
+
+  if(recipients.length === 0){
+    alert("Choisis au moins un enfant destinataire.");
+    return;
+  }
+
+  const { data: post, error: postError } = await db
+    .from("journal_posts")
+    .insert({
+      workspace_id: workspace.id,
+      content: content
+    })
+    .select("id")
+    .single();
+
+  if(postError){
+    console.error(postError);
+    alert("La publication n'a pas pu être enregistrée.");
+    return;
+  }
+
+  const lignesDestinataires = recipients.map(childId => ({
+    post_id: post.id,
+    child_id: childId
+  }));
+
+  const { error: childrenError } = await db
+    .from("journal_post_children")
+    .insert(lignesDestinataires);
+
+  if(childrenError){
+
+    console.error(childrenError);
+
+    await db
+      .from("journal_posts")
+      .delete()
+      .eq("id", post.id);
+
+    alert("La publication a été créée, mais les destinataires n'ont pas pu être enregistrés. Rien n'a été conservé.");
+
+    return;
+  }
+
+  textarea.value = "";
+
+  alert("Ton petit message a bien été publié ! 🌿");
+
+}
+
 function openChildDetail(id){
 
   const child = children.find(c => c.id === id);
