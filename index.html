@@ -3852,7 +3852,7 @@ function renderRecap(){
 
     console.log("RÉCAP", child.firstName, key, sheet?.totalPlanned, sheet?.days);
 
-    let planned = 0;
+   let planned = Number(sheet?.totalPlanned) || 0;
     let actual = 0;
     let overtime = 0;
     let ie = 0;
@@ -3890,7 +3890,7 @@ const p =
         const a =
           Number(day.actualHours) || 0;
 
-        planned += p;
+       // Le total prévu est déjà récupéré depuis la fiche de présence.
         actual += a;
         overtime += Math.max(0, a - p);
 
