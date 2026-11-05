@@ -3422,7 +3422,44 @@ if(!isWeekend){
 
 }
 
-    const overtime = Math.max(0, actualHours - Number(plannedHours || 0));
+    let overtime = 0;
+
+if(!isNonPresenceDay && !isWeekend){
+
+  const plannedTimes = plannedSchedule.match(
+    /^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/
+  );
+
+  const actualTimes = actualSchedule.match(
+    /^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/
+  );
+
+  if(plannedTimes && actualTimes){
+
+    const plannedStart =
+      Number(plannedTimes[1]) * 60 +
+      Number(plannedTimes[2]);
+
+    const plannedEnd =
+      Number(plannedTimes[3]) * 60 +
+      Number(plannedTimes[4]);
+
+    const actualStart =
+      Number(actualTimes[1]) * 60 +
+      Number(actualTimes[2]);
+
+    const actualEnd =
+      Number(actualTimes[3]) * 60 +
+      Number(actualTimes[4]);
+
+    const overtimeMinutes =
+      Math.max(0, plannedStart - actualStart) +
+      Math.max(0, actualEnd - plannedEnd);
+
+    overtime =
+      Math.round((overtimeMinutes / 60) * 100) / 100;
+  }
+}
 
     totalPlanned += Number(plannedHours) || 0;
     totalActual += actualHours;
