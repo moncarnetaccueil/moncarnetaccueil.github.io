@@ -3652,22 +3652,41 @@ function updatePresenceDay(key,dateString,field,value){
     sheets[key].days[dateString] = {};
   }
 
-  if(field === "plannedHours" || field === "actualHours"){
-    value = Number(value) || 0;
-  }
+  const day = sheets[key].days[dateString];
 
-  sheets[key].days[dateString][field] = value;
+  if(field === "actualSchedule"){
 
-  // Une correction des horaires réels devient prioritaire
-  // sur les données automatiques du pointage.
-  if(field === "actualSchedule" || field === "actualHours"){
-    sheets[key].days[dateString].manualActualOverride = true;
+    day.actualSchedule = value;
+
+    const horaires = value.split(/\s*[-–]\s*/);
+
+    if(horaires.length === 2){
+      day.actualHours = calculateElapsedHours(
+        horaires[0],
+        horaires[1]
+      );
+    }else{
+      day.actualHours = 0;
+    }
+
+    day.manualActualOverride = true;
+
+  }else{
+
+    if(field === "plannedHours" || field === "actualHours"){
+      value = Number(value) || 0;
+    }
+
+    day[field] = value;
+
+    if(field === "actualHours"){
+      day.manualActualOverride = true;
+    }
   }
 
   saveSheets();
   generatePresence();
 }
-
 function updateSheetText(key,field,value){
 
   if(!sheets[key]){
