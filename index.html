@@ -2783,7 +2783,7 @@ function toggleTousDestinatairesJournal(button){
 
   if(postError){
     console.error(postError);
-    alert("La publication n'a pas pu être enregistrée.");
+    alert("Erreur publication : " + postError.message);
     return;
   }
 
