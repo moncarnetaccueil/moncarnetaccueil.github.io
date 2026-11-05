@@ -2805,7 +2805,7 @@ function toggleTousDestinatairesJournal(button){
       .delete()
       .eq("id", post.id);
 
-    alert("La publication a été créée, mais les destinataires n'ont pas pu être enregistrés. Rien n'a été conservé.");
+    alert("Erreur destinataires : " + childrenError.message);
 
     return;
   }
