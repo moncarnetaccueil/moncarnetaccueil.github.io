@@ -3850,6 +3850,8 @@ function renderRecap(){
     const sheet =
       sheets[key];
 
+    console.log("RÉCAP", child.firstName, key, sheet?.totalPlanned, sheet?.days);
+
     let planned = 0;
     let actual = 0;
     let overtime = 0;
