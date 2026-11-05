@@ -3344,6 +3344,13 @@ function generatePresence(){
     const saved = sheet.days[dateString] || {};
     const pointage = pointages[dateString]?.[childId];
 
+    console.log(
+  "TEST POINTAGE",
+  dateString,
+  pointage,
+  saved.manualActualOverride
+);
+
     const isPlanned = (contract.workdays || []).includes(weekday);
 
  const dailySchedule =
