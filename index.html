@@ -1076,43 +1076,149 @@ footer{
     <p>Les jolis moments de nos journées 🌿</p>
   </div>
 
-  <div class="card">
-    <h3>✍️ Partager un moment</h3>
+  <div class="card" style="padding:12px;">
 
-    <label for="journalContent">Ton petit mot</label>
-    <textarea
-      id="journalContent"
-      placeholder="Raconte un joli moment de la journée..."
-      rows="4"
-    ></textarea>
+    <div style="
+      display:grid;
+      grid-template-columns:minmax(170px, 240px) minmax(0,1fr);
+      gap:12px;
+      min-height:520px;
+    ">
 
-    <label for="journalChildren">Pour quel(s) enfant(s) ?</label>
-    <select id="journalChildren" multiple>
-    </select>
+      <!-- DESTINATAIRES -->
+      <div style="
+        background:#eeeae2;
+        border-radius:16px;
+        padding:15px;
+      ">
 
-    <p class="muted">
-      Tu peux sélectionner un enfant, plusieurs enfants ou tous les enfants.
-    </p>
+        <h3 style="margin-top:0;">👨‍👩‍👧 Destinataires</h3>
 
-    <label for="journalPhotos">Ajouter des photos</label>
-    <input
-      type="file"
-      id="journalPhotos"
-      accept="image/*"
-      multiple
-    >
+        <p style="font-size:13px;color:#777;">
+          Choisis les enfants qui pourront voir tes messages.
+        </p>
 
-    <button type="button" onclick="publierJournal()">
-      Publier dans le petit journal
-    </button>
-  </div>
+        <select
+          id="journalChildren"
+          multiple
+          size="8"
+          style="
+            width:100%;
+            min-height:180px;
+            border:0;
+            border-radius:12px;
+            padding:10px;
+            background:white;
+          "
+        ></select>
 
-  <div id="journalPosts">
-    <p>Les publications apparaîtront ici.</p>
+        <p style="font-size:12px;color:#777;">
+          Tu peux sélectionner plusieurs enfants.
+        </p>
+
+      </div>
+
+      <!-- CONVERSATION -->
+      <div style="
+        background:#f5f0e7;
+        border-radius:16px;
+        padding:15px;
+        display:flex;
+        flex-direction:column;
+        min-width:0;
+      ">
+
+        <div style="
+          border-bottom:1px solid #e2ddd3;
+          padding-bottom:12px;
+        ">
+          <h3 style="margin:0;">💬 Conversation</h3>
+          <p style="font-size:12px;color:#888;margin:5px 0 0;">
+            Tous les jolis moments partagés
+          </p>
+        </div>
+
+        <div id="journalPosts" style="
+          flex:1;
+          padding:15px 0;
+          min-height:260px;
+        ">
+          <p style="
+            text-align:center;
+            color:#999;
+            margin-top:70px;
+          ">
+            🌿
+            <br><br>
+            Ton petit journal commencera ici.
+            <br>
+            Tes publications resteront visibles au fil des jours.
+          </p>
+        </div>
+
+        <!-- ZONE DE MESSAGE -->
+        <div style="
+          background:white;
+          border-radius:16px;
+          padding:12px;
+          border:1px solid #e5e0d7;
+        ">
+
+          <textarea
+            id="journalContent"
+            rows="3"
+            placeholder="Écris ton petit message..."
+            style="
+              width:100%;
+              border:0;
+              resize:vertical;
+              outline:none;
+              font-size:14px;
+              background:transparent;
+            "
+          ></textarea>
+
+          <div style="
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            flex-wrap:wrap;
+            gap:10px;
+            border-top:1px solid #eee;
+            padding-top:10px;
+          ">
+
+            <div style="display:flex;gap:16px;font-size:21px;">
+              <span title="Smileys">😊</span>
+              <span title="Photos">📷</span>
+              <span title="Vidéos">🎥</span>
+              <span title="Fichiers">📎</span>
+            </div>
+
+            <input
+              type="file"
+              id="journalPhotos"
+              accept="image/*,video/*"
+              multiple
+              style="max-width:150px;font-size:11px;"
+            >
+
+            <button
+              type="button"
+              onclick="publierJournal()"
+              class="btn"
+            >
+              Envoyer ➤
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 
 </section>
-
 <!-- CALENDRIER -->
 <section id="calendrier" class="page">
 
