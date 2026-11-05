@@ -1068,127 +1068,237 @@ footer{
 
 </section>
 
-  <!-- DISCUSSION -->
+ <!-- DISCUSSION -->
 <section id="discussion" class="page">
+
+  <style>
+    #discussion .journal-shell {
+      background: #f5f0e7;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid #e8e1d5;
+    }
+
+    #discussion .journal-header {
+      background: #8fa58b;
+      color: white;
+      padding: 20px 24px;
+    }
+
+    #discussion .journal-layout {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px;
+      min-height: 570px;
+    }
+
+    #discussion .journal-sidebar {
+      background: #eeeae2;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    #discussion .journal-conversation {
+      background: #f5f0e7;
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    #discussion .journal-child-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      background: white;
+      border: 2px solid transparent;
+      border-radius: 13px;
+      cursor: pointer;
+      text-align: left;
+      color: #514c43;
+      font: inherit;
+      transition: .2s;
+    }
+
+    #discussion .journal-child-chip.selected {
+      border-color: #8fa58b;
+      background: #f7faf5;
+    }
+
+    #discussion .journal-dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    #discussion .journal-message {
+      background: white;
+      border-radius: 16px 16px 16px 5px;
+      padding: 13px 16px;
+      margin: 10px 0;
+      max-width: 85%;
+      box-shadow: 0 2px 6px #00000008;
+    }
+
+    #discussion .journal-composer {
+      background: white;
+      border-radius: 18px;
+      padding: 14px;
+      border: 1px solid #e8e1d5;
+      margin-top: auto;
+    }
+
+    #discussion .journal-composer textarea {
+      width: 100%;
+      border: 0;
+      outline: none;
+      resize: vertical;
+      min-height: 65px;
+      background: transparent;
+      font: inherit;
+      color: #514c43;
+      box-sizing: border-box;
+    }
+
+    #discussion .journal-tools {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-top: 1px solid #eeeae2;
+      padding-top: 12px;
+    }
+
+    #discussion .journal-tool-icons {
+      display: flex;
+      gap: 17px;
+      font-size: 21px;
+      align-items: center;
+    }
+
+    #discussion .journal-tool-icons span {
+      cursor: pointer;
+    }
+
+    @media (max-width: 650px) {
+      #discussion .journal-layout {
+        grid-template-columns: 1fr;
+      }
+
+      #discussion .journal-sidebar {
+        padding: 12px;
+      }
+
+      #discussion .journal-children-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      #discussion .journal-child-chip {
+        margin: 0;
+        padding: 10px 7px;
+        font-size: 13px;
+      }
+
+      #discussion .journal-conversation {
+        min-height: 430px;
+      }
+    }
+  </style>
 
   <div class="page-title">
     <h2>📖 Le petit journal</h2>
     <p>Les jolis moments de nos journées 🌿</p>
   </div>
 
-  <div class="card" style="padding:12px;">
+  <div class="journal-shell">
 
-    <div style="
-      display:grid;
-      grid-template-columns:minmax(170px, 240px) minmax(0,1fr);
-      gap:12px;
-      min-height:520px;
-    ">
+    <div class="journal-header">
+      <h2 style="margin:0;">📖 Le petit journal</h2>
+      <p style="margin:5px 0 0;color:#ffffff;">
+        Les jolis moments de nos journées 🌿
+      </p>
+    </div>
 
-      <!-- DESTINATAIRES -->
-      <div style="
-        background:#eeeae2;
-        border-radius:16px;
-        padding:15px;
-      ">
+    <div class="journal-layout">
+
+      <!-- COLONNE DES DESTINATAIRES -->
+      <div class="journal-sidebar">
 
         <h3 style="margin-top:0;">👨‍👩‍👧 Destinataires</h3>
 
         <p style="font-size:13px;color:#777;">
-          Choisis les enfants qui pourront voir tes messages.
+          Choisis les enfants qui verront tes messages.
         </p>
 
-        <select
-          id="journalChildren"
-          multiple
-          size="8"
-          style="
-            width:100%;
-            min-height:180px;
-            border:0;
-            border-radius:12px;
-            padding:10px;
-            background:white;
-          "
-        ></select>
+        <button
+          type="button"
+          class="journal-child-chip"
+          id="journalAllChildren"
+          onclick="toggleTousDestinatairesJournal(this)"
+        >
+          <span class="journal-dot" style="background:#8fa58b;"></span>
+          <strong>Tous les enfants</strong>
+        </button>
 
-        <p style="font-size:12px;color:#777;">
-          Tu peux sélectionner plusieurs enfants.
+        <div
+          id="journalChildren"
+          class="journal-children-list"
+        ></div>
+
+        <p style="font-size:12px;color:#888;margin-top:16px;">
+          Tu peux sélectionner un enfant ou plusieurs enfants.
         </p>
 
       </div>
 
       <!-- CONVERSATION -->
-      <div style="
-        background:#f5f0e7;
-        border-radius:16px;
-        padding:15px;
-        display:flex;
-        flex-direction:column;
-        min-width:0;
-      ">
+      <div class="journal-conversation">
 
         <div style="
-          border-bottom:1px solid #e2ddd3;
-          padding-bottom:12px;
+          border-bottom:1px solid #e6dfd4;
+          padding-bottom:13px;
         ">
           <h3 style="margin:0;">💬 Conversation</h3>
           <p style="font-size:12px;color:#888;margin:5px 0 0;">
-            Tous les jolis moments partagés
+            Tous les petits moments partagés
           </p>
         </div>
 
         <div id="journalPosts" style="
           flex:1;
-          padding:15px 0;
-          min-height:260px;
+          padding:12px 0;
+          min-height:300px;
         ">
-          <p style="
-            text-align:center;
-            color:#999;
-            margin-top:70px;
-          ">
-            🌿
-            <br><br>
-            Ton petit journal commencera ici.
-            <br>
-            Tes publications resteront visibles au fil des jours.
-          </p>
+          <div style="text-align:center;color:#999;margin-top:90px;">
+            <div style="font-size:35px;">🌿</div>
+            <p>Ton petit journal commencera ici.</p>
+            <p style="font-size:12px;">
+              Les messages resteront visibles au fil des jours.
+            </p>
+          </div>
         </div>
 
-        <!-- ZONE DE MESSAGE -->
-        <div style="
-          background:white;
-          border-radius:16px;
-          padding:12px;
-          border:1px solid #e5e0d7;
-        ">
+        <!-- ZONE D'ECRITURE -->
+        <div class="journal-composer">
 
           <textarea
             id="journalContent"
-            rows="3"
             placeholder="Écris ton petit message..."
-            style="
-              width:100%;
-              border:0;
-              resize:vertical;
-              outline:none;
-              font-size:14px;
-              background:transparent;
-            "
+            rows="3"
           ></textarea>
 
-          <div style="
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            flex-wrap:wrap;
-            gap:10px;
-            border-top:1px solid #eee;
-            padding-top:10px;
-          ">
+          <div class="journal-tools">
 
-            <div style="display:flex;gap:16px;font-size:21px;">
+            <div class="journal-tool-icons">
               <span title="Smileys">😊</span>
               <span title="Photos">📷</span>
               <span title="Vidéos">🎥</span>
@@ -1205,8 +1315,8 @@ footer{
 
             <button
               type="button"
-              onclick="publierJournal()"
               class="btn"
+              onclick="publierJournal()"
             >
               Envoyer ➤
             </button>
@@ -1219,6 +1329,7 @@ footer{
   </div>
 
 </section>
+  
 <!-- CALENDRIER -->
 <section id="calendrier" class="page">
 
@@ -2539,25 +2650,95 @@ function renderChildren(){
   }).join("");
 }
 
-  function chargerDestinatairesJournal(){
+function chargerDestinatairesJournal(){
 
-  const select =
+  const container =
     document.getElementById("journalChildren");
 
-  if(!select) return;
+  const allButton =
+    document.getElementById("journalAllChildren");
+
+  if(!container || !allButton) return;
 
   const enfantsAvecId =
     children.filter(child => child.supabaseId);
 
-  select.innerHTML = `
-    <option value="__all__">Tous les enfants</option>
-    ${enfantsAvecId.map(child => `
-      <option value="${escapeHtml(child.supabaseId)}">
-        ${escapeHtml(child.firstName)} ${escapeHtml(child.lastName)}
-      </option>
-    `).join("")}
-  `;
+  container.innerHTML = enfantsAvecId.map(child => {
 
+    const couleur =
+      /^#[0-9a-fA-F]{6}$/.test(child.color || "")
+        ? child.color
+        : "#8fa58b";
+
+    return `
+      <button
+        type="button"
+        class="journal-child-chip"
+        data-child-id="${escapeHtml(child.supabaseId)}"
+        onclick="toggleDestinataireJournal(this)"
+      >
+        <span
+          class="journal-dot"
+          style="background:${couleur};"
+        ></span>
+
+        <span>
+          ${escapeHtml(child.firstName)}
+          ${escapeHtml(child.lastName)}
+        </span>
+      </button>
+    `;
+  }).join("");
+
+  allButton.classList.remove("selected");
+}
+
+
+function toggleDestinataireJournal(button){
+
+  button.classList.toggle("selected");
+
+  const chips = Array.from(
+    document.querySelectorAll(
+      "#journalChildren .journal-child-chip"
+    )
+  );
+
+  const allButton =
+    document.getElementById("journalAllChildren");
+
+  const tousSelectionnes =
+    chips.length > 0 &&
+    chips.every(chip =>
+      chip.classList.contains("selected")
+    );
+
+  if(allButton){
+    allButton.classList.toggle(
+      "selected",
+      tousSelectionnes
+    );
+  }
+}
+
+
+function toggleTousDestinatairesJournal(button){
+
+  const chips = Array.from(
+    document.querySelectorAll(
+      "#journalChildren .journal-child-chip"
+    )
+  );
+
+  const shouldSelect =
+    chips.length > 0 &&
+    !button.classList.contains("selected");
+
+  chips.forEach(chip => {
+    chip.classList.toggle("selected", shouldSelect);
+  });
+
+  button.classList.toggle("selected", shouldSelect);
 }
 
 function openChildDetail(id){
