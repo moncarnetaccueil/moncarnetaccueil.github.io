@@ -1077,6 +1077,37 @@ footer{
   </div>
 
   <div class="card">
+    <h3>✍️ Partager un moment</h3>
+
+    <label for="journalContent">Ton petit mot</label>
+    <textarea
+      id="journalContent"
+      placeholder="Raconte un joli moment de la journée..."
+      rows="4"
+    ></textarea>
+
+    <label for="journalChildren">Pour quel(s) enfant(s) ?</label>
+    <select id="journalChildren" multiple>
+    </select>
+
+    <p class="muted">
+      Tu peux sélectionner un enfant, plusieurs enfants ou tous les enfants.
+    </p>
+
+    <label for="journalPhotos">Ajouter des photos</label>
+    <input
+      type="file"
+      id="journalPhotos"
+      accept="image/*"
+      multiple
+    >
+
+    <button type="button" onclick="publierJournal()">
+      Publier dans le petit journal
+    </button>
+  </div>
+
+  <div id="journalPosts">
     <p>Les publications apparaîtront ici.</p>
   </div>
 
@@ -1784,6 +1815,10 @@ function showPage(pageId, button){
     renderChildren();
   }
 
+  if(pageId === "discussion"){
+  chargerDestinatairesJournal();
+}
+
   if(pageId === "calendrier"){
     renderCalendar();
   }
@@ -2396,6 +2431,27 @@ function renderChildren(){
     `;
 
   }).join("");
+}
+
+  function chargerDestinatairesJournal(){
+
+  const select =
+    document.getElementById("journalChildren");
+
+  if(!select) return;
+
+  const enfantsAvecId =
+    children.filter(child => child.supabaseId);
+
+  select.innerHTML = `
+    <option value="__all__">Tous les enfants</option>
+    ${enfantsAvecId.map(child => `
+      <option value="${escapeHtml(child.supabaseId)}">
+        ${escapeHtml(child.firstName)} ${escapeHtml(child.lastName)}
+      </option>
+    `).join("")}
+  `;
+
 }
 
 function openChildDetail(id){
