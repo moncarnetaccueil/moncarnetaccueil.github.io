@@ -4604,35 +4604,11 @@ function openMonthlyCoupon(childId){
     Number(document.getElementById("recapYear").value);
 
   const monthName =
-    new Date(year, month - 1, 1)
+    new Date(year, month, 1)
       .toLocaleDateString("fr-FR", {
         month:"long",
         year:"numeric"
       });
-
-  const key = sheetKey(child.id, year, month);
-  const sheet = sheets[key] || {};
-  const days = sheet.days || {};
-
-  let actualHours = 0;
-  let actualDays = 0;
-  let meals = 0;
-  let snacks = 0;
-  let maintenanceDays = 0;
-
-  Object.values(days).forEach(day => {
-
-    const hours = Number(day.actualHours) || 0;
-
-    actualHours += hours;
-
-    if(hours > 0) actualDays++;
-
-    if(day.meal) meals++;
-    if(day.snack) snacks++;
-    if(day.ie) maintenanceDays++;
-
-  });
 
   const monthlyHours =
     Number(contract.monthlyHours) || 0;
@@ -4640,11 +4616,57 @@ function openMonthlyCoupon(childId){
   const monthlyDays =
     Number(contract.monthlyDays) || 0;
 
-  const hourlyRate =
-    Number(contract.hourlyRate) || 0;
+  // Projection sur le mois complet
+  const projection =
+    calculateMonthlyCouponProjection(child, year, month);
 
-  const baseSalary =
-    monthlyHours * hourlyRate;
+  const moneyPlaceholder = "—";
+
+  const heart = (color) => `
+    <span style="
+      color:${color};
+      font-size:17px;
+      margin-right:9px;
+    ">♥</span>
+  `;
+
+  const line = (label, color, amount) => `
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:8px 2px;
+      border-bottom:1px solid #eee9e1;
+      font-family:'29LT Riwaya Informal',Georgia,serif;
+      font-style:italic;
+      color:#222;
+      font-size:15px;
+    ">
+      <span>${heart(color)}${label}</span>
+      <span style="white-space:nowrap;">${amount}</span>
+    </div>
+  `;
+
+  const totalBox = (label, amount, background) => `
+    <div style="
+      background:${background};
+      border-radius:15px;
+      padding:13px 16px;
+      margin-top:13px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      font-family:'29LT Riwaya Informal',Georgia,serif;
+      font-style:italic;
+      color:#222;
+      font-size:16px;
+    ">
+      <span>${label}</span>
+      <span>${amount}</span>
+    </div>
+  `;
 
   container.style.display = "none";
 
@@ -4654,79 +4676,282 @@ function openMonthlyCoupon(childId){
       ← Retour aux enfants
     </button>
 
+    <style>
+      #monthlyCouponPaper * {
+        box-sizing:border-box;
+      }
+
+      #monthlyCouponPaper {
+        background:#fffdf9;
+        border:1px solid #e8e0d5;
+        border-radius:25px;
+        padding:22px;
+        margin-top:18px;
+        color:#222;
+        font-family:Arial,sans-serif;
+      }
+
+      #monthlyCouponPaper .coupon-title {
+        text-align:center;
+        font-family:Raleway,Arial,sans-serif;
+        font-size:25px;
+        letter-spacing:2px;
+        font-weight:600;
+        margin:5px 0 15px;
+      }
+
+      #monthlyCouponPaper .coupon-name {
+        text-align:center;
+        font-family:'29LT Riwaya Informal',Georgia,serif;
+        font-style:italic;
+        font-size:23px;
+        margin:5px 0;
+      }
+
+      #monthlyCouponPaper .coupon-month {
+        text-align:center;
+        font-family:'29LT Riwaya Informal',Georgia,serif;
+        font-style:italic;
+        font-size:17px;
+        margin:5px 0 22px;
+        text-transform:capitalize;
+      }
+
+      #monthlyCouponPaper .coupon-columns {
+        display:grid;
+        grid-template-columns:minmax(0,2fr) minmax(180px,1fr);
+        gap:18px;
+        align-items:stretch;
+      }
+
+      #monthlyCouponPaper .coupon-card {
+        border:1px solid #e9e2d8;
+        border-radius:20px;
+        padding:17px;
+        background:#fff;
+      }
+
+      #monthlyCouponPaper .coupon-heading {
+        border-radius:13px;
+        padding:10px;
+        text-align:center;
+        color:white;
+        font-family:'29LT Riwaya Informal',Georgia,serif;
+        font-style:italic;
+        font-size:19px;
+        font-weight:normal;
+        margin:0 0 12px;
+      }
+
+      #monthlyCouponPaper .coupon-section {
+        margin-top:18px;
+      }
+
+      #monthlyCouponPaper .coupon-small-title {
+        font-family:'29LT Riwaya Informal',Georgia,serif;
+        font-style:italic;
+        font-size:17px;
+        margin:0 0 8px;
+        color:#222;
+      }
+
+      #monthlyCouponPaper .coupon-total {
+        border-radius:15px;
+        padding:13px;
+        margin-top:13px;
+        display:flex;
+        justify-content:space-between;
+        gap:10px;
+        font-family:'29LT Riwaya Informal',Georgia,serif;
+        font-style:italic;
+        font-size:16px;
+      }
+
+      @media(max-width:650px){
+        #monthlyCouponPaper {
+          padding:14px;
+        }
+
+        #monthlyCouponPaper .coupon-columns {
+          grid-template-columns:1fr;
+        }
+      }
+    </style>
+
     <div id="monthlyCouponPaper">
 
-      <div class="coupon-main">
+      <h2 class="coupon-title">MON COUPON MENSUEL</h2>
 
-        <h2>COUPON MENSUEL</h2>
-
-        <h3>${escapeHtml(child.firstName)}
-        ${escapeHtml(child.lastName)}</h3>
-
-        <p>${monthName}</p>
-
-        <hr>
-
-        <h4>RÉMUNÉRATION MENSUELLE</h4>
-
-        <p>Jours mensualisés :
-          <strong>${monthlyDays}</strong>
-        </p>
-
-        <p>Heures mensualisées :
-          <strong>${monthlyHours.toFixed(2)} h</strong>
-        </p>
-
-        <p>Jours réellement effectués :
-          <strong>${actualDays}</strong>
-        </p>
-
-        <p>Heures réellement effectuées :
-          <strong>${actualHours.toFixed(2)} h</strong>
-        </p>
-
-        <hr>
-
-        <p>Salaire mensualisé :
-          <strong>${baseSalary.toFixed(2)} €</strong>
-        </p>
-
-        <h4>INDEMNITÉS</h4>
-
-        <p>Entretien : ${maintenanceDays} jours</p>
-        <p>Repas : ${meals}</p>
-        <p>Goûters : ${snacks}</p>
-
-        <hr>
-
-        <h3>Montant total à percevoir</h3>
-
-        <p>Calcul à finaliser</p>
-
+      <div class="coupon-name">
+        ${escapeHtml(child.firstName)}
+        ${escapeHtml(child.lastName)}
       </div>
 
-      <div class="coupon-stub">
+      <div class="coupon-month">
+        ${monthName}
+      </div>
 
-        <h4>À CONSERVER</h4>
+      <div class="coupon-columns">
 
-        <p>${escapeHtml(child.firstName)}
-        ${escapeHtml(child.lastName)}</p>
+        <div class="coupon-card">
 
-        <p>${monthName}</p>
+          <div style="
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+            margin-bottom:20px;
+          ">
 
-        <hr>
+            <div style="
+              background:#f5f0e7;
+              border-radius:15px;
+              padding:13px;
+              text-align:center;
+            ">
+              <div class="coupon-small-title">
+                Mensualisation
+              </div>
 
-        <p>Montant à percevoir :</p>
+              <div style="font-size:14px;margin-top:8px;">
+                ${monthlyDays} jours
+              </div>
 
-        <p>................ €</p>
+              <div style="font-size:14px;margin-top:5px;">
+                ${monthlyHours.toFixed(2)} h
+              </div>
+            </div>
 
-        <p>Coupon donné le :</p>
+            <div style="
+              background:#dfe8dc;
+              border-radius:15px;
+              padding:13px;
+              text-align:center;
+            ">
+              <div class="coupon-small-title">
+                Effectif estimé
+              </div>
 
-        <p>................</p>
+              <div style="font-size:14px;margin-top:8px;">
+                ${projection.estimatedDays} jours
+              </div>
 
-        <p>Payé le :</p>
+              <div style="font-size:14px;margin-top:5px;">
+                ${projection.estimatedHours.toFixed(2)} h
+              </div>
+            </div>
 
-        <p>................</p>
+          </div>
+
+          <div style="
+            text-align:center;
+            font-size:12px;
+            color:#777;
+            margin-bottom:20px;
+          ">
+            Effectif = jours et heures déjà effectués
+            + prévision des jours restants au contrat
+          </div>
+
+          <div class="coupon-section">
+
+            <h3 class="coupon-heading" style="background:#8fa58b;">
+              Salaire
+            </h3>
+
+            ${line("Base mensualisation brute","#8fa58b",moneyPlaceholder)}
+            ${line("Absences","#d8c7ad",moneyPlaceholder)}
+            ${line("Heures complémentaires","#f1dfe3",moneyPlaceholder)}
+            ${line("Rémunération","#bd8b91",moneyPlaceholder)}
+
+            ${totalBox(
+              "(1) Salaire total net",
+              moneyPlaceholder,
+              "#e8eee5"
+            )}
+
+          </div>
+
+          <div class="coupon-section">
+
+            <h3 class="coupon-heading" style="background:#b9a68d;">
+              Indemnités
+            </h3>
+
+            ${line("Entretien","#8fa58b",moneyPlaceholder)}
+            ${line("Repas","#d8c7ad",moneyPlaceholder)}
+            ${line("Goûter","#f1dfe3",moneyPlaceholder)}
+            ${line("Autre","#bd8b91",moneyPlaceholder)}
+
+            ${totalBox(
+              "(2) Total des indemnités",
+              moneyPlaceholder,
+              "#f5f0e7"
+            )}
+
+          </div>
+
+          <div class="coupon-total" style="
+            background:#dfe8dc;
+            margin-top:20px;
+            font-size:17px;
+          ">
+            <span>TOTAL RÉMUNÉRATION À VERSER</span>
+            <span>—</span>
+          </div>
+
+          <div style="
+            text-align:right;
+            font-size:13px;
+            font-family:'29LT Riwaya Informal',Georgia,serif;
+            font-style:italic;
+            margin-top:8px;
+          ">
+            (1) + (2) = —
+          </div>
+
+        </div>
+
+        <div class="coupon-card" style="
+          background:#fbf8f2;
+          display:flex;
+          flex-direction:column;
+        ">
+
+          <h3 class="coupon-heading" style="background:#b9a68d;">
+            Congés
+          </h3>
+
+          <div style="
+            font-family:'29LT Riwaya Informal',Georgia,serif;
+            font-style:italic;
+            font-size:16px;
+            line-height:1.7;
+            text-align:center;
+            margin-top:10px;
+          ">
+            Congés à reporter au mois de juin
+          </div>
+
+          <div style="
+            margin-top:25px;
+            border:1px solid #e5dccf;
+            border-radius:14px;
+            padding:15px;
+            text-align:center;
+            font-family:'29LT Riwaya Informal',Georgia,serif;
+            font-style:italic;
+          ">
+            Solde à reporter
+
+            <div style="
+              font-size:22px;
+              margin-top:12px;
+            ">
+              —
+            </div>
+          </div>
+
+        </div>
 
       </div>
 
@@ -4734,7 +4959,6 @@ function openMonthlyCoupon(childId){
 
   `;
 }
-
 function closeMonthlyCoupon(){
 
   document.getElementById("monthlyCouponDisplay").innerHTML = "";
