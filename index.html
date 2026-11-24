@@ -1738,10 +1738,23 @@ footer{
         <input id="hourlyRate" type="number" step="0.01" min="0">
       </div>
 
-      <div class="field">
-        <label>Indemnité d’entretien (€)</label>
-        <input id="maintenanceFee" type="number" step="0.01" min="0">
-      </div>
+    <div class="field">
+  <label>Indice de référence pour l’entretien</label>
+  <input
+    id="maintenanceIndex"
+    type="number"
+    step="0.001"
+    min="0"
+    value="0.435"
+    placeholder="0.435"
+  >
+  <small>Le barème sera calculé automatiquement à partir de cet indice.</small>
+</div>
+
+<div class="field">
+  <label>Indemnité d’entretien actuelle (€)</label>
+  <input id="maintenanceFee" type="number" step="0.01" min="0">
+</div>
 
       <div class="field">
         <label>Indemnité repas (€)</label>
