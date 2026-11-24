@@ -4780,7 +4780,11 @@ function openMonthlyCoupon(childId){
 
     <div id="monthlyCouponPaper">
 
-      <h2 class="coupon-title">MON COUPON MENSUEL</h2>
+      <h2 class="coupon-title" style="
+  font-family:'29LT Riwaya Informal',Georgia,serif;
+  font-style:italic;
+  font-weight:normal;
+">MON COUPON MENSUEL</h2>
 
       <div class="coupon-name">
         ${escapeHtml(child.firstName)}
@@ -4855,7 +4859,7 @@ function openMonthlyCoupon(childId){
           <div class="coupon-section">
 
             <h3 class="coupon-heading" style="background:#8fa58b;">
-              Salaire
+              SALAIRE
             </h3>
 
             ${line("Base mensualisation brute","#8fa58b",moneyPlaceholder)}
@@ -4874,7 +4878,7 @@ function openMonthlyCoupon(childId){
           <div class="coupon-section">
 
             <h3 class="coupon-heading" style="background:#b9a68d;">
-              Indemnités
+              INDEMNITÉS
             </h3>
 
             ${line("Entretien","#8fa58b",moneyPlaceholder)}
@@ -4890,24 +4894,18 @@ function openMonthlyCoupon(childId){
 
           </div>
 
-          <div class="coupon-total" style="
-            background:#dfe8dc;
-            margin-top:20px;
-            font-size:17px;
-          ">
-            <span>TOTAL RÉMUNÉRATION À VERSER</span>
-            <span>—</span>
-          </div>
-
-          <div style="
-            text-align:right;
-            font-size:13px;
-            font-family:'29LT Riwaya Informal',Georgia,serif;
-            font-style:italic;
-            margin-top:8px;
-          ">
-            (1) + (2) = —
-          </div>
+        <div class="coupon-total" style="
+  background:#dfe8dc;
+  margin-top:20px;
+  font-size:15px;
+  align-items:center;
+  flex-wrap:wrap;
+">
+  <span>TOTAL RÉMUNÉRATION À VERSER</span>
+  <span style="white-space:nowrap;">
+    (1) + (2) = —
+  </span>
+</div>
 
         </div>
 
