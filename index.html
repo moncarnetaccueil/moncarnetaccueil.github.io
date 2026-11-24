@@ -4284,12 +4284,12 @@ function countPlannedDays(child,year,month){
   let count = 0;
 
   const daysInMonth =
-    new Date(year,month+1,0).getDate();
+    new Date(year,month,0).getDate();
 
   for(let d=1;d<=daysInMonth;d++){
 
     const weekday =
-      new Date(year,month,d).getDay();
+      new Date(year,month-1,d).getDay();
 
     if((contract.workdays || []).includes(weekday)){
       count++;
@@ -4299,30 +4299,7 @@ function countPlannedDays(child,year,month){
   return count;
 }
 
-function countPlannedDays(child,year,month){
-
-  const contract =
-    child.contract || {};
-
-  let count = 0;
-
-  const daysInMonth =
-    new Date(year,month+1,0).getDate();
-
-  for(let d=1;d<=daysInMonth;d++){
-
-    const weekday =
-      new Date(year,month,d).getDay();
-
-    if((contract.workdays || []).includes(weekday)){
-      count++;
-    }
-  }
-
-  return count;
-}
-
-
+  
 /* =========================
    RECAP
 ========================= */
