@@ -4533,21 +4533,143 @@ function openMonthlyCoupon(childId){
 
   if(!child) return;
 
+  const contract = child.contract || {};
+
+  const month =
+    Number(document.getElementById("recapMonth").value);
+
+  const year =
+    Number(document.getElementById("recapYear").value);
+
+  const monthName =
+    new Date(year, month - 1, 1)
+      .toLocaleDateString("fr-FR", {
+        month:"long",
+        year:"numeric"
+      });
+
+  const key = sheetKey(child.id, year, month);
+  const sheet = sheets[key] || {};
+  const days = sheet.days || {};
+
+  let actualHours = 0;
+  let actualDays = 0;
+  let meals = 0;
+  let snacks = 0;
+  let maintenanceDays = 0;
+
+  Object.values(days).forEach(day => {
+
+    const hours = Number(day.actualHours) || 0;
+
+    actualHours += hours;
+
+    if(hours > 0) actualDays++;
+
+    if(day.meal) meals++;
+    if(day.snack) snacks++;
+    if(day.ie) maintenanceDays++;
+
+  });
+
+  const monthlyHours =
+    Number(contract.monthlyHours) || 0;
+
+  const monthlyDays =
+    Number(contract.monthlyDays) || 0;
+
+  const hourlyRate =
+    Number(contract.hourlyRate) || 0;
+
+  const baseSalary =
+    monthlyHours * hourlyRate;
+
   container.style.display = "none";
 
   display.innerHTML = `
+
     <button class="btn" onclick="closeMonthlyCoupon()">
       ← Retour aux enfants
     </button>
 
-    <h3 style="margin-top:20px;">
-      Coupon mensuel de ${escapeHtml(child.firstName)}
-      ${escapeHtml(child.lastName)}
-    </h3>
+    <div id="monthlyCouponPaper">
 
-    <div class="notice">
-      Nous allons maintenant préparer son coupon.
+      <div class="coupon-main">
+
+        <h2>COUPON MENSUEL</h2>
+
+        <h3>${escapeHtml(child.firstName)}
+        ${escapeHtml(child.lastName)}</h3>
+
+        <p>${monthName}</p>
+
+        <hr>
+
+        <h4>RÉMUNÉRATION MENSUELLE</h4>
+
+        <p>Jours mensualisés :
+          <strong>${monthlyDays}</strong>
+        </p>
+
+        <p>Heures mensualisées :
+          <strong>${monthlyHours.toFixed(2)} h</strong>
+        </p>
+
+        <p>Jours réellement effectués :
+          <strong>${actualDays}</strong>
+        </p>
+
+        <p>Heures réellement effectuées :
+          <strong>${actualHours.toFixed(2)} h</strong>
+        </p>
+
+        <hr>
+
+        <p>Salaire mensualisé :
+          <strong>${baseSalary.toFixed(2)} €</strong>
+        </p>
+
+        <h4>INDEMNITÉS</h4>
+
+        <p>Entretien : ${maintenanceDays} jours</p>
+        <p>Repas : ${meals}</p>
+        <p>Goûters : ${snacks}</p>
+
+        <hr>
+
+        <h3>Montant total à percevoir</h3>
+
+        <p>Calcul à finaliser</p>
+
+      </div>
+
+      <div class="coupon-stub">
+
+        <h4>À CONSERVER</h4>
+
+        <p>${escapeHtml(child.firstName)}
+        ${escapeHtml(child.lastName)}</p>
+
+        <p>${monthName}</p>
+
+        <hr>
+
+        <p>Montant à percevoir :</p>
+
+        <p>................ €</p>
+
+        <p>Coupon donné le :</p>
+
+        <p>................</p>
+
+        <p>Payé le :</p>
+
+        <p>................</p>
+
+      </div>
+
     </div>
+
   `;
 }
 
