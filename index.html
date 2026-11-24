@@ -4511,8 +4511,8 @@ const p =
         <button
           class="btn"
           style="background:${child.color || '#8fa58b'}; margin:5px;"
-          onclick="openMonthlyCoupon(${JSON.stringify(child.id)})">
-          ${escapeHtml(child.firstName)}
+           onclick="openMonthlyCoupon('${child.id}')">
+        ${escapeHtml(child.firstName)}
           ${escapeHtml(child.lastName)}
         </button>
       `).join("")}
