@@ -2925,13 +2925,36 @@ function openChildDetail(id){
       <p><strong>Jours mensualisés :</strong> ${show(c.monthlyDays)}</p>
     </div>
 
-    <div class="child-detail-section">
-      <h3>💶 Tarifs et indemnités</h3>
-      <p><strong>Taux horaire :</strong> ${show(c.hourlyRate)} €</p>
-      <p><strong>Indemnité d'entretien :</strong> ${show(c.maintenanceFee)} €</p>
-      <p><strong>Indemnité repas :</strong> ${show(c.mealFee)} €</p>
-      <p><strong>Indemnité goûter :</strong> ${show(c.snackFee)} €</p>
-    </div>
+   <div class="child-detail-section">
+  <h3>💶 Tarifs et indemnités</h3>
+
+  <p><strong>Tarif horaire brut :</strong> ${show(c.hourlyRate)} €</p>
+
+  <div style="
+    background:#f5f0e7;
+    border:1px solid #e5ddcf;
+    border-radius:16px;
+    padding:14px;
+    margin:15px 0;
+  ">
+    <h4 style="margin:0 0 10px;color:#735b47;">
+      Indemnité d'entretien
+    </h4>
+
+    <p>
+      <strong>Indice de référence :</strong>
+      ${show(c.maintenanceIndex ?? 0.435)}
+    </p>
+
+    <p style="margin-bottom:0;">
+      <strong>Calcul :</strong>
+      Selon la durée journalière prévue au contrat
+    </p>
+  </div>
+
+  <p><strong>Indemnité repas :</strong> ${show(c.mealFee)} €</p>
+  <p><strong>Indemnité goûter :</strong> ${show(c.snackFee)} €</p>
+</div>
 
     <div class="child-detail-section">
       <h3>🕒 Horaires prévus</h3>
