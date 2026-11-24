@@ -1738,6 +1738,16 @@ footer{
         <input id="hourlyRate" type="number" step="0.01" min="0">
       </div>
 
+      <div class="field">
+  <label>Salaire mensuel brut (€)</label>
+  <input id="monthlyGross" type="number" step="0.01" min="0">
+</div>
+
+<div class="field">
+  <label>Salaire mensuel net (€)</label>
+  <input id="monthlyNet" type="number" step="0.01" min="0">
+</div>
+
     <div class="field">
   <label>Indice de référence pour l’entretien</label>
   <input
@@ -2235,6 +2245,12 @@ function openChildModal(id = null){
     document.getElementById("hourlyRate").value =
       c.hourlyRate || "";
 
+    document.getElementById("monthlyGross").value =
+  c.monthlyGross ?? "";
+
+document.getElementById("monthlyNet").value =
+  c.monthlyNet ?? "";
+
     document.getElementById("maintenanceIndex").value =
   c.maintenanceIndex ?? 0.435;
 
@@ -2299,6 +2315,8 @@ function clearChildForm(){
   document.getElementById("monthlyHours").value = "";
   document.getElementById("monthlyDays").value = "";
   document.getElementById("hourlyRate").value = "";
+  document.getElementById("monthlyGross").value = "";
+document.getElementById("monthlyNet").value = "";
   document.getElementById("maintenanceIndex").value = "0.435";
   document.getElementById("maintenanceFee").value = "";
   document.getElementById("mealFee").value = "";
@@ -2417,6 +2435,9 @@ const existingChild = children.find(c => c.id === id);
 
       hourlyRate:
         Number(document.getElementById("hourlyRate").value) || 0,
+
+      monthlyGross: Number(document.getElementById("monthlyGross").value) || 0,
+monthlyNet: Number(document.getElementById("monthlyNet").value) || 0,
 
       maintenanceIndex: Number(document.getElementById("maintenanceIndex").value) || 0.435,
 
@@ -2929,6 +2950,9 @@ function openChildDetail(id){
   <h3>💶 Tarifs et indemnités</h3>
 
   <p><strong>Tarif horaire brut :</strong> ${show(c.hourlyRate)} €</p>
+
+  <p><strong>Salaire mensuel brut :</strong> ${show(c.monthlyGross)} €</p>
+<p><strong>Salaire mensuel net :</strong> ${show(c.monthlyNet)} €</p>
 
   <div style="
     background:#f5f0e7;
