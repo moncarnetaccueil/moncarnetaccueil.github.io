@@ -4284,12 +4284,12 @@ function countPlannedDays(child,year,month){
   let count = 0;
 
   const daysInMonth =
-    new Date(year,month,0).getDate();
+    new Date(year,month+1,0).getDate();
 
   for(let d=1;d<=daysInMonth;d++){
 
     const weekday =
-      new Date(year,month-1,d).getDay();
+      new Date(year,month,d).getDay();
 
     if((contract.workdays || []).includes(weekday)){
       count++;
@@ -4297,6 +4297,91 @@ function countPlannedDays(child,year,month){
   }
 
   return count;
+}
+
+  function calculateMonthlyCouponProjection(child, year, month){
+
+  const contract = child.contract || {};
+
+  const key = sheetKey(child.id, year, month);
+  const sheet = sheets[key] || {};
+  const days = sheet.days || {};
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  let completedDays = 0;
+  let futurePlannedDays = 0;
+  let completedHours = 0;
+  let futurePlannedHours = 0;
+
+  for(let d = 1; d <= daysInMonth; d++){
+
+    const date = new Date(year, month, d);
+    const weekday = date.getDay();
+
+    const dateString =
+      year + "-" +
+      String(month + 1).padStart(2,"0") + "-" +
+      String(d).padStart(2,"0");
+
+    const saved = days[dateString] || {};
+    const presenceEvents = getPresenceEvents(dateString, child.id);
+
+    const isPlanned =
+      (contract.workdays || []).includes(weekday);
+
+    const dailySchedule = contract.dailyHours?.[weekday];
+
+    const contractSchedule =
+      dailySchedule?.start && dailySchedule?.end
+        ? dailySchedule.start + " - " + dailySchedule.end
+        : "";
+
+    const plannedSchedule =
+      saved.plannedSchedule ?? (isPlanned ? contractSchedule : "");
+
+    const plannedHours =
+      saved.plannedHours !== undefined
+        ? Number(saved.plannedHours) || 0
+        : isPlanned
+          ? inferHoursFromSchedule(plannedSchedule)
+          : 0;
+
+    const isExcluded = presenceEvents.length > 0;
+
+    if(!isPlanned || isExcluded) continue;
+
+    if(date < new Date(new Date().toDateString())){
+
+      const actualSchedule = saved.actualSchedule || "";
+      const actualHours = Number(saved.actualHours) || 0;
+
+      if(actualSchedule && actualSchedule !== "Absent" &&
+         actualSchedule !== "Non travaillé"){
+
+        if(actualHours > 0){
+          completedDays++;
+          completedHours += actualHours;
+        }
+      }
+
+    }else{
+
+      futurePlannedDays++;
+      futurePlannedHours += plannedHours;
+
+    }
+  }
+
+  return {
+    completedDays,
+    futurePlannedDays,
+    estimatedDays: completedDays + futurePlannedDays,
+
+    completedHours,
+    futurePlannedHours,
+    estimatedHours: completedHours + futurePlannedHours
+  };
 }
 
   
