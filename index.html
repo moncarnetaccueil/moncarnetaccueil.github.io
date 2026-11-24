@@ -4780,20 +4780,55 @@ function openMonthlyCoupon(childId){
 
     <div id="monthlyCouponPaper">
 
-      <h2 class="coupon-title" style="
-  font-family:'29LT Riwaya Informal',Georgia,serif;
-  font-style:italic;
-  font-weight:normal;
-">MON COUPON MENSUEL</h2>
+      <div style="
+  background:#e8eee5;
+  border:1px solid #d9e2d5;
+  border-radius:20px;
+  padding:17px 20px;
+  margin-bottom:20px;
+">
 
-      <div class="coupon-name">
-        ${escapeHtml(child.firstName)}
-        ${escapeHtml(child.lastName)}
-      </div>
+  <h2 style="
+    text-align:center;
+    font-family:'29LT Riwaya Informal',Georgia,serif;
+    font-style:italic;
+    font-weight:normal;
+    font-size:23px;
+    margin:0 0 16px;
+    color:#222;
+  ">
+    MON COUPON MENSUEL
+  </h2>
 
-      <div class="coupon-month">
-        ${monthName}
-      </div>
+  <div style="
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+    font-family:'29LT Riwaya Informal',Georgia,serif;
+    font-style:italic;
+    font-size:17px;
+    color:#222;
+  ">
+
+    <span>
+      ${escapeHtml(child.firstName)}
+      ${escapeHtml(child.lastName)}
+    </span>
+
+    <span style="
+      background:#f5f0e7;
+      border-radius:12px;
+      padding:9px 16px;
+      text-transform:capitalize;
+    ">
+      ${monthName}
+    </span>
+
+  </div>
+
+</div>
 
       <div class="coupon-columns">
 
