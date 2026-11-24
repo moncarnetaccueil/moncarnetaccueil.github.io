@@ -1462,11 +1462,13 @@ footer{
       des informations de vos fiches enfants et des présences.
     </div>
 
-    <div id="monthlyCouponContent">
-      <div class="empty">
-        Sélectionnez un enfant pour préparer son coupon.
-      </div>
-    </div>
+<div id="monthlyCouponContent">
+
+  <div id="monthlyCouponChildren"></div>
+
+  <div id="monthlyCouponDisplay"></div>
+
+</div>
 
   </div>
 
@@ -4335,6 +4337,8 @@ function populateRecapSelectors(){
 
 function renderRecap(){
 
+  renderMonthlyCouponChildren();
+  
   const month =
     Number(document.getElementById("recapMonth").value);
 
@@ -4480,6 +4484,82 @@ const p =
     </div>
   `;
 }
+
+  function renderMonthlyCouponChildren(){
+
+  const container =
+    document.getElementById("monthlyCouponChildren");
+
+  const display =
+    document.getElementById("monthlyCouponDisplay");
+
+  if(!container || !display) return;
+
+  if(children.length === 0){
+
+    container.innerHTML =
+      `<div class="empty">Aucun enfant enregistré.</div>`;
+
+    return;
+  }
+
+  display.innerHTML = "";
+
+  container.innerHTML = `
+    <div class="grid">
+      ${children.map(child => `
+        <button
+          class="btn"
+          style="background:${child.color || '#8fa58b'}; margin:5px;"
+          onclick="openMonthlyCoupon(${JSON.stringify(child.id)})">
+          ${escapeHtml(child.firstName)}
+          ${escapeHtml(child.lastName)}
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function openMonthlyCoupon(childId){
+
+  const container =
+    document.getElementById("monthlyCouponChildren");
+
+  const display =
+    document.getElementById("monthlyCouponDisplay");
+
+  const child =
+    children.find(c => c.id === childId);
+
+  if(!child) return;
+
+  container.style.display = "none";
+
+  display.innerHTML = `
+    <button class="btn" onclick="closeMonthlyCoupon()">
+      ← Retour aux enfants
+    </button>
+
+    <h3 style="margin-top:20px;">
+      Coupon mensuel de ${escapeHtml(child.firstName)}
+      ${escapeHtml(child.lastName)}
+    </h3>
+
+    <div class="notice">
+      Nous allons maintenant préparer son coupon.
+    </div>
+  `;
+}
+
+function closeMonthlyCoupon(){
+
+  document.getElementById("monthlyCouponDisplay").innerHTML = "";
+
+  document.getElementById("monthlyCouponChildren").style.display = "block";
+
+  renderMonthlyCouponChildren();
+}
+  
 
 
 /* =========================
