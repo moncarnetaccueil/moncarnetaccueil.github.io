@@ -2235,6 +2235,9 @@ function openChildModal(id = null){
     document.getElementById("hourlyRate").value =
       c.hourlyRate || "";
 
+    document.getElementById("maintenanceIndex").value =
+  c.maintenanceIndex ?? 0.435;
+
     document.getElementById("maintenanceFee").value =
       c.maintenanceFee || "";
 
@@ -2296,6 +2299,7 @@ function clearChildForm(){
   document.getElementById("monthlyHours").value = "";
   document.getElementById("monthlyDays").value = "";
   document.getElementById("hourlyRate").value = "";
+  document.getElementById("maintenanceIndex").value = "0.435";
   document.getElementById("maintenanceFee").value = "";
   document.getElementById("mealFee").value = "";
   document.getElementById("snackFee").value = "";
@@ -2413,6 +2417,8 @@ const existingChild = children.find(c => c.id === id);
 
       hourlyRate:
         Number(document.getElementById("hourlyRate").value) || 0,
+
+      maintenanceIndex: Number(document.getElementById("maintenanceIndex").value) || 0.435,
 
       maintenanceFee:
         Number(document.getElementById("maintenanceFee").value) || 0,
