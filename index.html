@@ -988,16 +988,13 @@ footer{
     display: none !important;
   }
 
-  /* Impression du coupon mensuel */
+/* Impression du coupon mensuel */
   body.printing-coupon {
     font-size: initial !important;
   }
 
+  /* Masquer tous les onglets sauf le récapitulatif */
   body.printing-coupon .page {
-    display: block !important;
-  }
-
-  body.printing-coupon #presences {
     display: none !important;
   }
 
@@ -1008,33 +1005,39 @@ footer{
     padding: 0 !important;
   }
 
-  body.printing-coupon #monthlyCouponChildren,
-  body.printing-coupon #monthlyCouponDisplay > .no-print {
+  body.printing-coupon #presences {
     display: none !important;
   }
 
-  body.printing-coupon #monthlyCouponDisplay {
-    display: block !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
+  /* Masquer le contenu du récapitulatif sauf le coupon */
+  body.printing-coupon #recap * {
+    visibility: hidden !important;
+  }
+
+  body.printing-coupon #monthlyCouponPaper,
+  body.printing-coupon #monthlyCouponPaper * {
+    visibility: visible !important;
   }
 
   body.printing-coupon #monthlyCouponPaper {
-    width: 190mm !important;
-    max-width: 190mm !important;
-    margin: 10mm auto !important;
-    padding: 22px !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 10mm !important;
+    transform: translateX(-50%) !important;
+    width: 160mm !important;
+    max-width: 160mm !important;
+    margin: 0 !important;
+    padding: 16px !important;
     border: 1px solid #e8e0d5 !important;
-    border-radius: 25px !important;
+    border-radius: 20px !important;
     box-shadow: none !important;
-    transform: none !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
   body.printing-coupon #monthlyCouponPaper .coupon-columns {
-    grid-template-columns: minmax(0,2fr) minmax(180px,1fr) !important;
+    grid-template-columns: minmax(0,2fr) minmax(150px,1fr) !important;
+    gap: 12px !important;
   }
 
   body.printing-coupon #monthlyCouponPaper input {
@@ -1042,8 +1045,8 @@ footer{
     -webkit-text-fill-color: #222 !important;
     background: transparent !important;
   }
+ }
   
-}
 </style>
 </head>
 
