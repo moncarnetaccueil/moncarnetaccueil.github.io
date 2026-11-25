@@ -2119,6 +2119,11 @@ function showPage(pageId, button){
 ========================= */
 
 function openModal(id){
+
+  document.querySelectorAll(".modal").forEach(modal => {
+    modal.classList.remove("show");
+  });
+
   document.getElementById(id).classList.add("show");
 }
 
