@@ -3040,8 +3040,14 @@ function openChildDetail(id){
     closeModal("childDetailModal");
     deleteChild(id);
   };
-  alert("Ouverture de la fiche de consultation");
-  openModal("childDetailModal");
+ openModal("childDetailModal");
+
+const testModal = document.getElementById("childDetailModal");
+
+alert(
+  "Classe : " + testModal.className +
+  "\nAffichage : " + getComputedStyle(testModal).display
+);
 }
   
 function deleteChild(id){
