@@ -1009,7 +1009,7 @@ footer{
     display: none !important;
   }
 
-  /* Masquer le contenu du récapitulatif sauf le coupon */
+  /* Masquer tout sauf le coupon */
   body.printing-coupon #recap * {
     visibility: hidden !important;
   }
@@ -1019,34 +1019,149 @@ footer{
     visibility: visible !important;
   }
 
+  /* Format compact du coupon */
   body.printing-coupon #monthlyCouponPaper {
     position: absolute !important;
     left: 50% !important;
-    top: 10mm !important;
-    transform: translateX(-50%) !important;
-    width: 160mm !important;
-    max-width: 160mm !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 190mm !important;
+    max-width: 190mm !important;
     margin: 0 !important;
-    padding: 16px !important;
+    padding: 8px !important;
     border: 1px solid #e8e0d5 !important;
-    border-radius: 20px !important;
+    border-radius: 12px !important;
     box-shadow: none !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
 
-  body.printing-coupon #monthlyCouponPaper .coupon-columns {
-    grid-template-columns: minmax(0,2fr) minmax(150px,1fr) !important;
-    gap: 12px !important;
+  /* Réduire l'en-tête */
+  body.printing-coupon #monthlyCouponPaper > div:first-child {
+    padding: 7px 12px !important;
+    margin-bottom: 8px !important;
+    border-radius: 10px !important;
   }
 
+  body.printing-coupon #monthlyCouponPaper .coupon-title {
+    font-size: 16px !important;
+    margin: 0 0 5px !important;
+  }
+
+  body.printing-coupon #monthlyCouponPaper h2 {
+    font-size: 16px !important;
+    margin: 0 0 5px !important;
+  }
+
+  /* Trois colonnes : salaire, indemnités, congés */
+  body.printing-coupon #monthlyCouponPaper .coupon-columns {
+    display: grid !important;
+    grid-template-columns: 1.25fr 1.15fr 0.8fr !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+  }
+
+  /* Déplier la première carte pour répartir ses rubriques */
+  body.printing-coupon #monthlyCouponPaper
+  .coupon-columns > .coupon-card:first-child {
+    display: contents !important;
+  }
+
+  /* Masquer les deux encadrés de projection */
+  body.printing-coupon #monthlyCouponPaper
+  .coupon-columns > .coupon-card:first-child > div:nth-child(1),
+  body.printing-coupon #monthlyCouponPaper
+  .coupon-columns > .coupon-card:first-child > div:nth-child(2) {
+    display: none !important;
+  }
+
+  /* Partie salaire */
+  body.printing-coupon #monthlyCouponPaper
+  .coupon-columns > .coupon-card:first-child > .coupon-section:nth-of-type(3) {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+
+  /* Partie indemnités */
+  body.printing-coupon #monthlyCouponPaper
+  .coupon-columns > .coupon-card:first-child > .coupon-section:nth-of-type(4) {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+
+  /* Partie congés */
+  body.printing-coupon #monthlyCouponPaper
+  .coupon-columns > .coupon-card:last-child {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    padding: 8px !important;
+    border-radius: 12px !important;
+  }
+
+  /* Total sur toute la largeur */
+  body.printing-coupon #monthlyCouponPaper
+  .coupon-columns > .coupon-card:first-child > .coupon-total {
+    grid-column: 1 / 4 !important;
+    grid-row: 2 !important;
+    margin-top: 0 !important;
+    padding: 7px 10px !important;
+    font-size: 12px !important;
+  }
+
+  /* Réduire les espacements des rubriques */
+  body.printing-coupon #monthlyCouponPaper .coupon-section {
+    margin-top: 0 !important;
+    padding: 0 !important;
+  }
+
+  body.printing-coupon #monthlyCouponPaper .coupon-card {
+    padding: 8px !important;
+    border-radius: 12px !important;
+  }
+
+  body.printing-coupon #monthlyCouponPaper .coupon-heading {
+    font-size: 13px !important;
+    padding: 5px !important;
+    margin-bottom: 5px !important;
+    border-radius: 8px !important;
+  }
+
+  body.printing-coupon #monthlyCouponPaper .coupon-small-title {
+    font-size: 11px !important;
+    margin-bottom: 3px !important;
+  }
+
+  body.printing-coupon #monthlyCouponPaper .coupon-section > div {
+    font-size: 10px !important;
+    padding: 4px 2px !important;
+    gap: 4px !important;
+  }
+
+  body.printing-coupon #monthlyCouponPaper .coupon-section > div[style*="border-radius"] {
+    padding: 5px !important;
+    margin-top: 5px !important;
+    font-size: 11px !important;
+  }
+
+  /* Réduire les champs de saisie à l'impression */
   body.printing-coupon #monthlyCouponPaper input {
+    width: 65px !important;
+    max-width: 65px !important;
+    padding: 3px !important;
+    font-size: 10px !important;
     color: #222 !important;
     -webkit-text-fill-color: #222 !important;
-    background: transparent !important;
+    background: #fffdf9 !important;
   }
- }
-  
+
+  /* Réduire la partie congés */
+  body.printing-coupon #monthlyCouponPaper
+  .coupon-columns > .coupon-card:last-child > div {
+    font-size: 11px !important;
+    margin-top: 8px !important;
+  }
+
+}
 </style>
 </head>
 
