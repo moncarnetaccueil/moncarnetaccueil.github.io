@@ -4305,10 +4305,14 @@ function saveSheets(){
   programmerSauvegardeEspace();
 }
 
-  function updateMonthlyCoupon(field, value){
+function updateMonthlyCoupon(field, value){
 
-  const childId =
-    document.getElementById("monthlyCouponPaper").dataset.childId;
+  const paper =
+    document.getElementById("monthlyCouponPaper");
+
+  if(!paper) return;
+
+  const childId = paper.dataset.childId;
 
   const month =
     Number(document.getElementById("recapMonth").value);
@@ -4321,12 +4325,76 @@ function saveSheets(){
   if(!sheets[key]) sheets[key] = { days:{} };
   if(!sheets[key].coupon) sheets[key].coupon = {};
 
-  sheets[key].coupon[field] =
+  const coupon = sheets[key].coupon;
+
+  const amount =
     value === "" ? 0 : Number(value);
+
+  coupon[field] =
+    Number.isFinite(amount) ? amount : 0;
+
+  const readAmount = (name) => {
+
+    const input =
+      document.getElementById("coupon-" + name);
+
+    if(!input) return Number(coupon[name]) || 0;
+
+    const number = Number(input.value);
+
+    return Number.isFinite(number) ? number : 0;
+  };
+
+  const writeAmount = (name, amount) => {
+
+    const rounded = Number(amount.toFixed(2));
+
+    const input =
+      document.getElementById("coupon-" + name);
+
+    if(input) input.value = String(rounded);
+
+    coupon[name] = rounded;
+  };
+
+  // Recalcul du total des indemnités
+  if([
+    "maintenance",
+    "meals",
+    "snacks",
+    "other"
+  ].includes(field)){
+
+    const totalIndemnities =
+      readAmount("maintenance") +
+      readAmount("meals") +
+      readAmount("snacks") +
+      readAmount("other");
+
+    writeAmount("indemnitiesTotal", totalIndemnities);
+
+    const totalToPay =
+      readAmount("netSalary") + totalIndemnities;
+
+    writeAmount("totalToPay", totalToPay);
+  }
+
+  // Recalcul du total à verser si le salaire net
+  // ou le total des indemnités est modifié
+  else if(
+    field === "netSalary" ||
+    field === "indemnitiesTotal"
+  ){
+
+    const totalToPay =
+      readAmount("netSalary") +
+      readAmount("indemnitiesTotal");
+
+    writeAmount("totalToPay", totalToPay);
+  }
 
   saveSheets();
 }
-
 
 function printPresence(){
 
@@ -4935,7 +5003,7 @@ const coupon = sheets[key].coupon;
 
   const moneyPlaceholder = "—";
 
-  const couponInput = (field, initialValue) => {
+const couponInput = (field, initialValue) => {
 
   const value =
     Object.prototype.hasOwnProperty.call(coupon, field)
@@ -4944,6 +5012,8 @@ const coupon = sheets[key].coupon;
 
   return `
     <input
+      id="coupon-${field}"
+      data-field="${field}"
       type="number"
       step="0.01"
       min="0"
