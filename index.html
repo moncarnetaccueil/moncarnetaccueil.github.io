@@ -1067,13 +1067,21 @@ footer{
     display: contents !important;
   }
 
-  /* Masquer les deux encadrés de projection */
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-columns > .coupon-card:first-child > div:nth-child(1),
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-columns > .coupon-card:first-child > div:nth-child(2) {
-    display: none !important;
-  }
+ /* Réafficher la mensualisation et l'effectif estimé */
+body.printing-coupon #monthlyCouponPaper
+.coupon-columns > .coupon-card:first-child > div:nth-child(1) {
+  display: grid !important;
+  grid-column: 1 / 4 !important;
+  grid-row: 1 !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 6px !important;
+  margin-bottom: 0 !important;
+}
+
+body.printing-coupon #monthlyCouponPaper
+.coupon-columns > .coupon-card:first-child > div:nth-child(2) {
+  display: none !important;
+}
 
   /* Partie salaire */
   body.printing-coupon #monthlyCouponPaper
