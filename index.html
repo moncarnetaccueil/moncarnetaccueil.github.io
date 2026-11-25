@@ -4534,6 +4534,74 @@ function countPlannedDays(child,year,month){
   return Math.round(total * 100) / 100;
 }
 
+  function calculateMonthlyMealSnack(child, year, month){
+
+  const contract = child.contract || {};
+
+  const key = sheetKey(child.id, year, month);
+  const sheet = sheets[key] || {};
+  const days = sheet.days || {};
+
+  const daysInMonth =
+    new Date(year, month + 1, 0).getDate();
+
+  const mealFee = Number(contract.mealFee) || 0;
+  const snackFee = Number(contract.snackFee) || 0;
+
+  let workedDays = 0;
+
+  for(let d = 1; d <= daysInMonth; d++){
+
+    const date = new Date(year, month, d);
+    const weekday = date.getDay();
+
+    const dateString =
+      year + "-" +
+      String(month + 1).padStart(2,"0") + "-" +
+      String(d).padStart(2,"0");
+
+    const saved = days[dateString] || {};
+
+    const isPlanned =
+      (contract.workdays || []).includes(weekday);
+
+    if(!isPlanned) continue;
+
+    const presenceEvents =
+      getPresenceEvents(dateString, child.id);
+
+    if(presenceEvents.length > 0) continue;
+
+    if(
+      saved.status === "absent" ||
+      saved.actualSchedule === "Absent" ||
+      saved.actualSchedule === "Non travaillé"
+    ){
+      continue;
+    }
+
+    if(date < new Date(new Date().toDateString())){
+
+      const actualHours =
+        Number(saved.actualHours) || 0;
+
+      if(actualHours <= 0) continue;
+    }
+
+    workedDays++;
+  }
+
+  return {
+    mealTotal: mealFee > 0
+      ? Math.round(workedDays * mealFee * 100) / 100
+      : null,
+
+    snackTotal: snackFee > 0
+      ? Math.round(workedDays * snackFee * 100) / 100
+      : null
+  };
+}
+
   
 /* =========================
    RECAP
@@ -4787,6 +4855,9 @@ function openMonthlyCoupon(childId){
 
   const maintenanceTotal =
   calculateMonthlyMaintenance(child, year, month);
+
+  const mealSnackTotals =
+  calculateMonthlyMealSnack(child, year, month);
 
   const moneyPlaceholder = "—";
 
@@ -5085,8 +5156,8 @@ function openMonthlyCoupon(childId){
             </h3>
 
             ${line("Entretien","#8fa58b",formatMoney(maintenanceTotal))}
-            ${line("Repas","#d8c7ad",moneyPlaceholder)}
-            ${line("Goûter","#f1dfe3",moneyPlaceholder)}
+            ${line("Repas","#d8c7ad",formatMoney(mealSnackTotals.mealTotal))}
+            ${line("Goûter","#f1dfe3",formatMoney(mealSnackTotals.snackTotal))}
             ${line("Autre","#bd8b91",moneyPlaceholder)}
 
             ${totalBox(
