@@ -2632,7 +2632,6 @@ snackHabitual:
 
   alert("Enfant enregistré et synchronisé avec Supabase 🌿");
 }
-
 function renderChildren(){
 
   const container =
@@ -2658,22 +2657,21 @@ function renderChildren(){
 
     return `
       <div class="child-card"
-     onclick="openChildDetail('${child.id}')"
-     style="cursor:pointer;">
+        onclick="openChildDetail('${child.id}')"
+        style="cursor:pointer;">
 
         <h3>
-  
-  <span style="
-    display:inline-block;
-    width:12px;
-    height:12px;
-    border-radius:50%;
-    background:${escapeHtml(child.color || '#8fa58b')};
-    margin-right:5px;
-    vertical-align:middle;
-  "></span>
-  ${escapeHtml(child.firstName)} ${escapeHtml(child.lastName)}
-</h3>
+          <span style="
+            display:inline-block;
+            width:12px;
+            height:12px;
+            border-radius:50%;
+            background:${escapeHtml(child.color || '#8fa58b')};
+            margin-right:5px;
+            vertical-align:middle;
+          "></span>
+          ${escapeHtml(child.firstName)} ${escapeHtml(child.lastName)}
+        </h3>
 
         <p>
           <strong>Date de naissance :</strong>
@@ -2697,34 +2695,34 @@ function renderChildren(){
 
         <p>
           <strong>Horaires :</strong>
-         ${escapeHtml(
-  (c.workdays || []).map(day => {
-    const jours = ["Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam."];
-    const h = c.dailyHours?.[day];
+          ${escapeHtml(
+            (c.workdays || []).map(day => {
+              const jours = ["Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam."];
+              const h = c.dailyHours?.[day];
 
-    return jours[day] + (
-      h && h.start && h.end
-        ? " " + h.start + "-" + h.end
-        : ""
-    );
-  }).join(" · ") || c.usualHours || "—"
-)}
+              return jours[day] + (
+                h && h.start && h.end
+                  ? " " + h.start + "-" + h.end
+                  : ""
+              );
+            }).join(" · ") || c.usualHours || "—"
+          )}
         </p>
 
         <div class="actions" style="margin-top:15px;">
 
           <button class="btn small"
-            onclick="event.stopPropagation(); openChildModal('${child.id}')"
+            onclick="event.stopPropagation(); openChildModal('${child.id}')">
             Modifier
           </button>
 
           <button class="btn light small"
-            onclick="event.stopPropagation(); openPresenceForChild('${child.id}')"
+            onclick="event.stopPropagation(); openPresenceForChild('${child.id}')">
             📝 Présence
           </button>
 
           <button class="btn danger small"
-            onclick="event.stopPropagation(); deleteChild('${child.id}')"
+            onclick="event.stopPropagation(); deleteChild('${child.id}')">
             Supprimer
           </button>
 
@@ -2735,7 +2733,6 @@ function renderChildren(){
 
   }).join("");
 }
-
 function chargerDestinatairesJournal(){
 
   const container =
