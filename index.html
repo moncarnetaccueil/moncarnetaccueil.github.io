@@ -4450,6 +4450,90 @@ function countPlannedDays(child,year,month){
   };
 }
 
+  function calculateMonthlyMaintenance(child, year, month){
+
+  const contract = child.contract || {};
+
+  const key = sheetKey(child.id, year, month);
+  const sheet = sheets[key] || {};
+  const days = sheet.days || {};
+
+  const daysInMonth =
+    new Date(year, month + 1, 0).getDate();
+
+  const index =
+    Number(contract.maintenanceIndex) || 0.435;
+
+  let total = 0;
+
+  for(let d = 1; d <= daysInMonth; d++){
+
+    const date = new Date(year, month, d);
+    const weekday = date.getDay();
+
+    const dateString =
+      year + "-" +
+      String(month + 1).padStart(2,"0") + "-" +
+      String(d).padStart(2,"0");
+
+    const saved = days[dateString] || {};
+
+    const isPlanned =
+      (contract.workdays || []).includes(weekday);
+
+    if(!isPlanned) continue;
+
+    const presenceEvents =
+      getPresenceEvents(dateString, child.id);
+
+    if(presenceEvents.length > 0) continue;
+
+    if(saved.status === "absent") continue;
+
+    const dailySchedule =
+      contract.dailyHours?.[weekday];
+
+    if(!dailySchedule?.start || !dailySchedule?.end){
+      continue;
+    }
+
+    const plannedSchedule =
+      dailySchedule.start + " - " + dailySchedule.end;
+
+    const plannedHours =
+      inferHoursFromSchedule(plannedSchedule);
+
+    if(plannedHours <= 0) continue;
+
+    if(date < new Date(new Date().toDateString())){
+
+      const actualSchedule =
+        saved.actualSchedule || "";
+
+      const actualHours =
+        Number(saved.actualHours) || 0;
+
+      if(
+        !actualSchedule ||
+        actualSchedule === "Absent" ||
+        actualSchedule === "Non travaillé" ||
+        actualHours <= 0
+      ){
+        continue;
+      }
+    }
+
+    const dailyFee =
+      plannedHours <= 6
+        ? 2.65
+        : Math.round(plannedHours * index * 100) / 100;
+
+    total += dailyFee;
+  }
+
+  return Math.round(total * 100) / 100;
+}
+
   
 /* =========================
    RECAP
@@ -4700,6 +4784,9 @@ function openMonthlyCoupon(childId){
   // Projection sur le mois complet
   const projection =
     calculateMonthlyCouponProjection(child, year, month);
+
+  const maintenanceTotal =
+  calculateMonthlyMaintenance(child, year, month);
 
   const moneyPlaceholder = "—";
 
@@ -4997,7 +5084,7 @@ function openMonthlyCoupon(childId){
               INDEMNITÉS
             </h3>
 
-            ${line("Entretien","#8fa58b",moneyPlaceholder)}
+            ${line("Entretien","#8fa58b",formatMoney(maintenanceTotal))}
             ${line("Repas","#d8c7ad",moneyPlaceholder)}
             ${line("Goûter","#f1dfe3",moneyPlaceholder)}
             ${line("Autre","#bd8b91",moneyPlaceholder)}
