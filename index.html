@@ -989,240 +989,198 @@ footer{
   }
 
 /* Impression du coupon mensuel */
-  body.printing-coupon {
-    font-size: initial !important;
-  }
-
-  body.printing-coupon .page {
-    display: none !important;
-  }
-
-  body.printing-coupon #recap {
-    display: block !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  body.printing-coupon #presences {
-    display: none !important;
-  }
-
-  body.printing-coupon #recap * {
-    visibility: hidden !important;
-  }
-
-  body.printing-coupon #monthlyCouponPaper,
-  body.printing-coupon #monthlyCouponPaper * {
-    visibility: visible !important;
-  }
-
-  /* Format général */
-  body.printing-coupon #monthlyCouponPaper {
-    position: absolute !important;
-    left: 50% !important;
-    top: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    width: 190mm !important;
-    max-width: 190mm !important;
-    margin: 0 !important;
-    padding: 12px !important;
-    border: 2px solid #e8c9ad !important;
-    border-radius: 17px !important;
-    box-shadow: none !important;
-    background: #fffdf9 !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-    overflow: hidden !important;
-  }
-
-  /* Décoration florale */
-  body.printing-coupon #monthlyCouponPaper::before,
-  body.printing-coupon #monthlyCouponPaper::after {
-    position: absolute !important;
-    z-index: 2 !important;
-    font-family: Georgia, serif !important;
-    color: #bd8b91 !important;
-    font-size: 27px !important;
-    line-height: 1 !important;
-    pointer-events: none !important;
-  }
-
-  body.printing-coupon #monthlyCouponPaper::before {
-    content: "❀  ❧" !important;
-    top: 5px !important;
-    left: 9px !important;
-  }
-
-  body.printing-coupon #monthlyCouponPaper::after {
-    content: "❧  ❀" !important;
-    bottom: 5px !important;
-    right: 9px !important;
-  }
-
-  /* En-tête */
-  body.printing-coupon #monthlyCouponPaper > div:first-child {
-    padding: 9px 35px !important;
-    margin-bottom: 9px !important;
-    border-radius: 12px !important;
-    background: #e8eee5 !important;
-    border: 1px solid #d5dfcf !important;
-  }
-
-  body.printing-coupon #monthlyCouponPaper h2 {
-    font-size: 20px !important;
-    letter-spacing: 1px !important;
-    margin: 0 0 7px !important;
-    color: #735b47 !important;
-  }
-
-  /* Trois colonnes */
-  body.printing-coupon #monthlyCouponPaper .coupon-columns {
-    display: grid !important;
-    grid-template-columns: 1.25fr 1.15fr 0.8fr !important;
-    grid-template-rows: auto auto auto !important;
-    gap: 8px !important;
-    align-items: stretch !important;
-  }
-
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-columns > .coupon-card:first-child {
-    display: contents !important;
-  }
-
-  /* Mensualisation et effectif */
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-columns > .coupon-card:first-child > div:nth-child(1) {
-    display: grid !important;
-    grid-column: 1 / 4 !important;
-    grid-row: 1 !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
-    margin: 0 !important;
-  }
-
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-columns > .coupon-card:first-child > div:nth-child(1) > div {
-    display: grid !important;
-    grid-template-columns: 1fr auto auto !important;
-    align-items: center !important;
-    gap: 8px !important;
-    padding: 8px 10px !important;
-    margin: 0 !important;
-    border: 1px solid #d8d9c5 !important;
-    border-radius: 10px !important;
-  }
-
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-columns > .coupon-card:first-child > div:nth-child(2) {
-    display: none !important;
-  }
-
-  /* Titres des encadrés */
-  body.printing-coupon #monthlyCouponPaper .coupon-small-title {
-    font-size: 10px !important;
-    margin: 0 !important;
-    white-space: nowrap !important;
-  }
-
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-columns > .coupon-card:first-child > div:nth-child(1) > div > div {
-    font-size: 10px !important;
-    margin: 0 !important;
-    white-space: nowrap !important;
-  }
-
-  /* Salaire */
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-columns > .coupon-card:first-child > .coupon-section:nth-of-type(3) {
-    grid-column: 1 !important;
-    grid-row: 2 !important;
-  }
-
-  /* Indemnités */
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-columns > .coupon-card:first-child > .coupon-section:nth-of-type(4) {
-    grid-column: 2 !important;
-    grid-row: 2 !important;
-  }
-
-  /* Congés */
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-columns > .coupon-card:last-child {
-    grid-column: 3 !important;
-    grid-row: 2 !important;
-    padding: 9px !important;
-    border-radius: 12px !important;
-    background: #f1dfe3 !important;
-    border-color: #e5c6ca !important;
-  }
-
-  /* Total général */
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-columns > .coupon-card:first-child > .coupon-total {
-    grid-column: 1 / 4 !important;
-    grid-row: 3 !important;
-    margin-top: 0 !important;
-    padding: 9px 12px !important;
-    font-size: 13px !important;
-    background: #8fa58b !important;
-    color: white !important;
-    border-radius: 12px !important;
-  }
-
-  /* Cartes et rubriques */
-  body.printing-coupon #monthlyCouponPaper .coupon-card {
-    padding: 9px !important;
-    border-radius: 12px !important;
-    border-color: #e4d9cb !important;
-  }
-
-  body.printing-coupon #monthlyCouponPaper .coupon-section {
-    margin-top: 0 !important;
-    padding: 0 !important;
-  }
-
-  body.printing-coupon #monthlyCouponPaper .coupon-heading {
-    font-size: 14px !important;
-    padding: 7px !important;
-    margin-bottom: 6px !important;
-    border-radius: 9px !important;
-    color: white !important;
-  }
-
-  body.printing-coupon #monthlyCouponPaper .coupon-section > div {
-    font-size: 10px !important;
-    padding: 4px 2px !important;
-    gap: 4px !important;
-  }
-
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-section > div[style*="border-radius"] {
-    padding: 6px !important;
-    margin-top: 5px !important;
-    font-size: 11px !important;
-  }
-
-  /* Champs modifiables */
-  body.printing-coupon #monthlyCouponPaper input {
-    width: 65px !important;
-    max-width: 65px !important;
-    padding: 3px !important;
-    font-size: 10px !important;
-    color: #222 !important;
-    -webkit-text-fill-color: #222 !important;
-    background: #fffdf9 !important;
-    border: 1px solid #d8cfc2 !important;
-  }
-
-  /* Texte des congés */
-  body.printing-coupon #monthlyCouponPaper
-  .coupon-columns > .coupon-card:last-child > div {
-    font-size: 11px !important;
-    margin-top: 8px !important;
-  }
-
+body.printing-coupon {
+  font-size: initial !important;
 }
+
+body.printing-coupon .page {
+  display: none !important;
+}
+
+body.printing-coupon #recap {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.printing-coupon #presences {
+  display: none !important;
+}
+
+body.printing-coupon #recap * {
+  visibility: hidden !important;
+}
+
+body.printing-coupon #monthlyCouponPaper,
+body.printing-coupon #monthlyCouponPaper * {
+  visibility: visible !important;
+}
+
+/* Format général */
+body.printing-coupon #monthlyCouponPaper {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 190mm !important;
+  max-width: 190mm !important;
+  margin: 0 !important;
+  padding: 8px !important;
+  border: 1px solid #e8e0d5 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+/* En-tête */
+body.printing-coupon #monthlyCouponPaper > div:first-child {
+  padding: 7px 12px !important;
+  margin-bottom: 8px !important;
+  border-radius: 10px !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-title {
+  font-size: 16px !important;
+  margin: 0 0 5px !important;
+}
+
+body.printing-coupon #monthlyCouponPaper h2 {
+  font-size: 16px !important;
+  margin: 0 0 5px !important;
+}
+
+/* Trois colonnes */
+body.printing-coupon #monthlyCouponPaper .coupon-columns {
+  display: grid !important;
+  grid-template-columns: 1.25fr 1.15fr 0.8fr !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:first-child {
+  display: contents !important;
+}
+
+/* Mensualisation et effectif */
+body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:first-child > div:nth-child(1) {
+  display: grid !important;
+  grid-column: 1/4 !important;
+  grid-row: 1 !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 6px !important;
+  margin-bottom: 0 !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:first-child > div:nth-child(1) > div {
+  display: grid !important;
+  grid-template-columns: 1fr auto auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 7px 9px !important;
+  margin: 0 !important;
+  border-radius: 9px !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-small-title {
+  font-size: 10px !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:first-child > div:nth-child(1) > div > div {
+  font-size: 10px !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:first-child > div:nth-child(2) {
+  display: none !important;
+}
+
+/* Salaire et indemnités */
+body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:first-child > .coupon-section:nth-of-type(3) {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:first-child > .coupon-section:nth-of-type(4) {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+}
+
+/* Congés */
+body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:last-child {
+  grid-column: 3 !important;
+  grid-row: 2 !important;
+  padding: 8px !important;
+  border-radius: 12px !important;
+}
+
+/* Total */
+body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:first-child > .coupon-total {
+  grid-column: 1/4 !important;
+  grid-row: 3 !important;
+  margin-top: 0 !important;
+  padding: 7px 10px !important;
+  font-size: 12px !important;
+}
+
+/* Autres réductions */
+body.printing-coupon #monthlyCouponPaper .coupon-section {
+  margin-top: 0 !important;
+  padding: 0 !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-card {
+  padding: 8px !important;
+  border-radius: 12px !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-heading {
+  font-size: 13px !important;
+  padding: 5px !important;
+  margin-bottom: 5px !important;
+  border-radius: 8px !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-small-title {
+  font-size: 11px !important;
+  margin-bottom: 3px !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-section > div {
+  font-size: 10px !important;
+  padding: 4px 2px !important;
+  gap: 4px !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-section > div[style*="border-radius"] {
+  padding: 5px !important;
+  margin-top: 5px !important;
+  font-size: 11px !important;
+}
+
+/* Champs modifiables */
+body.printing-coupon #monthlyCouponPaper input {
+  width: 65px !important;
+  max-width: 65px !important;
+  padding: 3px !important;
+  font-size: 10px !important;
+  color: #222 !important;
+  -webkit-text-fill-color: #222 !important;
+  background: #fffdf9 !important;
+}
+
+/* Texte des congés */
+body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:last-child > div {
+  font-size: 11px !important;
+  margin-top: 8px !important;
+}
+
+  }
+  
 </style>
 </head>
 
