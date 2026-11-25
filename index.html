@@ -4357,6 +4357,23 @@ function updateMonthlyCoupon(field, value){
     coupon[name] = rounded;
   };
 
+  // Recalcul du salaire brut total
+  if([
+    "baseGross",
+    "absences",
+    "extraHours",
+    "paidLeave"
+  ].includes(field)){
+
+    const grossTotal =
+      readAmount("baseGross") -
+      readAmount("absences") +
+      readAmount("extraHours") +
+      readAmount("paidLeave");
+
+    writeAmount("grossTotal", grossTotal);
+  }
+
   // Recalcul du total des indemnités
   if([
     "maintenance",
