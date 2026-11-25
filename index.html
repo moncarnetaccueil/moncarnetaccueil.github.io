@@ -4682,6 +4682,21 @@ function openMonthlyCoupon(childId){
   const monthlyDays =
     Number(contract.monthlyDays) || 0;
 
+  const formatMoney = value => {
+  if(value === undefined || value === null || value === ""){
+    return "—";
+  }
+
+  const amount = Number(value);
+
+  if(!Number.isFinite(amount)) return "—";
+
+  return amount.toLocaleString("fr-FR", {
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+  }) + " €";
+};
+
   // Projection sur le mois complet
   const projection =
     calculateMonthlyCouponProjection(child, year, month);
@@ -4963,14 +4978,14 @@ function openMonthlyCoupon(childId){
               SALAIRE
             </h3>
 
-            ${line("Base mensualisation brute","#8fa58b",moneyPlaceholder)}
+            ${line("Base mensualisation brute","#8fa58b",formatMoney(contract.monthlyGross))}
             ${line("Absences","#d8c7ad",moneyPlaceholder)}
             ${line("Heures complémentaires","#f1dfe3",moneyPlaceholder)}
             ${line("Rémunération","#bd8b91",moneyPlaceholder)}
 
             ${totalBox(
               "(1) Salaire total net",
-              moneyPlaceholder,
+              formatMoney(contract.monthlyNet),
               "#e8eee5"
             )}
 
