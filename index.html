@@ -987,6 +987,61 @@ footer{
   #presences .notice {
     display: none !important;
   }
+
+  /* Impression du coupon mensuel */
+  body.printing-coupon {
+    font-size: initial !important;
+  }
+
+  body.printing-coupon .page {
+    display: block !important;
+  }
+
+  body.printing-coupon #presences {
+    display: none !important;
+  }
+
+  body.printing-coupon #recap {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body.printing-coupon #monthlyCouponChildren,
+  body.printing-coupon #monthlyCouponDisplay > .no-print {
+    display: none !important;
+  }
+
+  body.printing-coupon #monthlyCouponDisplay {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body.printing-coupon #monthlyCouponPaper {
+    width: 190mm !important;
+    max-width: 190mm !important;
+    margin: 10mm auto !important;
+    padding: 22px !important;
+    border: 1px solid #e8e0d5 !important;
+    border-radius: 25px !important;
+    box-shadow: none !important;
+    transform: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  body.printing-coupon #monthlyCouponPaper .coupon-columns {
+    grid-template-columns: minmax(0,2fr) minmax(180px,1fr) !important;
+  }
+
+  body.printing-coupon #monthlyCouponPaper input {
+    color: #222 !important;
+    -webkit-text-fill-color: #222 !important;
+    background: transparent !important;
+  }
   
 }
 </style>
@@ -5099,10 +5154,21 @@ const couponInput = (field, initialValue) => {
 
   display.innerHTML = `
 
-    <button class="btn" onclick="closeMonthlyCoupon()">
-      ← Retour aux enfants
-    </button>
+   display.innerHTML = `
 
+    <div class="no-print" style="
+      display:flex;
+      gap:10px;
+      margin-bottom:12px;
+    ">
+      <button class="btn" onclick="closeMonthlyCoupon()">
+        ← Retour aux enfants
+      </button>
+
+      <button class="btn" onclick="printMonthlyCoupon()">
+        🖨️ Imprimer le coupon
+      </button>
+    </div>
     <style>
       #monthlyCouponPaper * {
         box-sizing:border-box;
@@ -5453,6 +5519,19 @@ ${totalBox(
 
   `;
 }
+
+function printMonthlyCoupon(){
+
+  document.body.classList.add("printing-coupon");
+
+  window.print();
+
+  window.addEventListener("afterprint", function(){
+    document.body.classList.remove("printing-coupon");
+  }, { once:true });
+
+}
+              
 function closeMonthlyCoupon(){
 
   document.getElementById("monthlyCouponDisplay").innerHTML = "";
