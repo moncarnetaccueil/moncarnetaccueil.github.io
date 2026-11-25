@@ -1078,6 +1078,31 @@ body.printing-coupon #monthlyCouponPaper
   margin-bottom: 0 !important;
 }
 
+  /* Présentation compacte des deux encadrés */
+body.printing-coupon #monthlyCouponPaper
+.coupon-columns > .coupon-card:first-child > div:nth-child(1) > div {
+  display: grid !important;
+  grid-template-columns: 1fr auto auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 7px 9px !important;
+  margin: 0 !important;
+  border-radius: 9px !important;
+}
+
+body.printing-coupon #monthlyCouponPaper .coupon-small-title {
+  font-size: 10px !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+body.printing-coupon #monthlyCouponPaper
+.coupon-columns > .coupon-card:first-child > div:nth-child(1) > div > div {
+  font-size: 10px !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
 body.printing-coupon #monthlyCouponPaper
 .coupon-columns > .coupon-card:first-child > div:nth-child(2) {
   display: none !important;
