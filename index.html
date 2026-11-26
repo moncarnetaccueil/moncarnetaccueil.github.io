@@ -1656,55 +1656,35 @@ body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:last-chi
     <div id="recapContent"></div>
   </div>
 
-  <div class="card">
-    <h3>💰 Ma rémunération</h3>
+ <div class="card" id="salaryTrackingCard">
 
- <div class="card" id="monthlyCouponCard">
+  <h3>💰 Mon suivi des rémunérations</h3>
 
-    <h3>🧾 Mon coupon mensuel</h3>
-
-    <div class="notice">
-      Préparation de votre coupon mensuel à partir
-      des informations de vos fiches enfants et des présences.
-    </div>
-
-<div id="monthlyCouponContent">
-
-  <div id="monthlyCouponChildren"></div>
-
-  <div id="monthlyCouponDisplay"></div>
-
-</div>
-
+  <div class="notice">
+    Retrouvez les rémunérations et les coupons mensuels
+    de chaque enfant, mois après mois.
   </div>
 
-    <div class="notice">
-      Cette partie est personnelle et ne sera pas visible par les parents.
-    </div>
+  <div class="grid">
 
-    <div class="grid">
-      <div class="field">
-        <label>Mois concerné</label>
-        <input type="month" id="salaryMonth">
-      </div>
-
-      <div class="field">
-        <label>Salaire reçu (€)</label>
-        <input type="number" id="salaryAmount" step="0.01" min="0">
-      </div>
+    <div class="field">
+      <label>Enfant</label>
+      <select id="salaryChild" onchange="renderSalaryHistory()">
+        <option value="">Choisir un enfant</option>
+      </select>
     </div>
 
     <div class="field">
-      <label>Bulletin de salaire</label>
-      <input type="file" id="payslipFile" accept=".pdf,.jpg,.jpeg,.png">
+      <label>Année</label>
+      <select id="salaryYear" onchange="renderSalaryHistory()">
+      </select>
     </div>
 
-    <div class="actions">
-      <button class="btn" onclick="saveSalary()">Enregistrer</button>
-    </div>
-
-    <div id="salaryList" style="margin-top:20px;"></div>
   </div>
+
+  <div id="salaryHistory"></div>
+
+</div>
 
 </section>
 
@@ -4971,6 +4951,7 @@ function populateRecapSelectors(){
 function renderRecap(){
 
   renderMonthlyCouponChildren();
+  renderSalaryHistory();
   
   const month =
     Number(document.getElementById("recapMonth").value);
@@ -5151,6 +5132,160 @@ const p =
       `).join("")}
     </div>
   `;
+}
+
+  function renderSalaryHistory(){
+
+  const childSelect =
+    document.getElementById("salaryChild");
+
+  const yearSelect =
+    document.getElementById("salaryYear");
+
+  const container =
+    document.getElementById("salaryHistory");
+
+  if(!childSelect || !yearSelect || !container) return;
+
+  // Liste des enfants
+  const selectedChild = childSelect.value;
+
+  childSelect.innerHTML = `
+    <option value="">Choisir un enfant</option>
+    ${children.map(child => `
+      <option value="${escapeAttribute(child.id)}">
+        ${escapeHtml(child.firstName)} ${escapeHtml(child.lastName)}
+      </option>
+    `).join("")}
+  `;
+
+  if(children.some(c => c.id === selectedChild)){
+    childSelect.value = selectedChild;
+  }
+
+  // Liste des années
+  const currentYear = new Date().getFullYear();
+  const selectedYear = yearSelect.value;
+
+  yearSelect.innerHTML = Array.from(
+    {length: currentYear + 5 - 2025 + 1},
+    (_, i) => 2025 + i
+  ).map(year => `
+    <option value="${year}">${year}</option>
+  `).join("");
+
+  yearSelect.value =
+    selectedYear && [...yearSelect.options].some(o => o.value === selectedYear)
+      ? selectedYear
+      : String(currentYear);
+
+  const child = children.find(c => c.id === childSelect.value);
+
+  if(!child){
+    container.innerHTML =
+      `<div class="empty">Choisissez un enfant pour consulter ses rémunérations.</div>`;
+    return;
+  }
+
+  const year = Number(yearSelect.value);
+  const contract = child.contract || {};
+
+  const money = value =>
+    Number(value || 0).toLocaleString("fr-FR", {
+      minimumFractionDigits:2,
+      maximumFractionDigits:2
+    }) + " €";
+
+  let rows = "";
+
+  for(let month = 0; month < 12; month++){
+
+    const key = sheetKey(child.id, year, month);
+    const coupon = sheets[key]?.coupon || {};
+
+    const maintenance =
+      Object.prototype.hasOwnProperty.call(coupon,"maintenance")
+        ? Number(coupon.maintenance) || 0
+        : calculateMonthlyMaintenance(child,year,month);
+
+    const mealSnack =
+      calculateMonthlyMealSnack(child,year,month);
+
+    const meals =
+      Object.prototype.hasOwnProperty.call(coupon,"meals")
+        ? Number(coupon.meals) || 0
+        : mealSnack.mealTotal;
+
+    const snacks =
+      Object.prototype.hasOwnProperty.call(coupon,"snacks")
+        ? Number(coupon.snacks) || 0
+        : mealSnack.snackTotal;
+
+    const other = Number(coupon.other) || 0;
+
+    const net =
+      Object.prototype.hasOwnProperty.call(coupon,"netSalary")
+        ? Number(coupon.netSalary) || 0
+        : Number(contract.monthlyNet) || 0;
+
+    const indemnities =
+      Object.prototype.hasOwnProperty.call(coupon,"indemnitiesTotal")
+        ? Number(coupon.indemnitiesTotal) || 0
+        : maintenance + meals + snacks + other;
+
+    const total =
+      Object.prototype.hasOwnProperty.call(coupon,"totalToPay")
+        ? Number(coupon.totalToPay) || 0
+        : net + indemnities;
+
+    const monthName =
+      new Date(year,month,1).toLocaleDateString("fr-FR",{
+        month:"long"
+      });
+
+    rows += `
+      <tr>
+        <td>${monthName}</td>
+        <td>${money(net)}</td>
+        <td>${money(indemnities)}</td>
+        <td><strong>${money(total)}</strong></td>
+        <td>
+          <button class="btn"
+            onclick="openSalaryCoupon('${escapeAttribute(child.id)}',${year},${month})">
+            Voir le coupon
+          </button>
+        </td>
+      </tr>
+    `;
+  }
+
+  container.innerHTML = `
+    <div class="presence-wrap">
+      <table class="recap-table">
+        <thead>
+          <tr>
+            <th>Mois</th>
+            <th>Salaire net</th>
+            <th>Indemnités</th>
+            <th>Total à verser</th>
+            <th>Coupon</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function openSalaryCoupon(childId,year,month){
+
+  document.getElementById("recapMonth").value = String(month);
+  document.getElementById("recapYear").value = String(year);
+
+  renderRecap();
+  openMonthlyCoupon(childId);
 }
 
 function openMonthlyCoupon(childId){
