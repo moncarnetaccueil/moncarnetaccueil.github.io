@@ -5785,13 +5785,56 @@ const couponInput = (field, initialValue) => {
         right:0;
       }
 
-      @media(max-width:650px){
+     @media(max-width:650px){
         #monthlyCouponPaper {
           padding:14px;
         }
 
         #monthlyCouponPaper .coupon-columns {
           grid-template-columns:1fr;
+        }
+      }
+
+      /* FORMAT RÉEL DU COUPON À L'IMPRESSION */
+      @media print {
+
+        body.printing-coupon #monthlyCouponPaper {
+          position: absolute !important;
+          left: 20mm !important;
+          top: 20mm !important;
+          transform: none !important;
+
+          width: 160mm !important;
+          min-width: 160mm !important;
+          max-width: 160mm !important;
+
+          min-height: 100mm !important;
+          height: auto !important;
+
+          box-sizing: border-box !important;
+          margin: 0 !important;
+          padding: 12px !important;
+          overflow: visible !important;
+        }
+
+        body.printing-coupon #monthlyCouponPaper h2 {
+          font-size: 22px !important;
+        }
+
+        body.printing-coupon #monthlyCouponPaper .coupon-heading {
+          font-size: 15px !important;
+        }
+
+        body.printing-coupon #monthlyCouponPaper .coupon-small-title {
+          font-size: 13px !important;
+        }
+
+        body.printing-coupon #monthlyCouponPaper .coupon-section > div {
+          font-size: 12px !important;
+        }
+
+        body.printing-coupon #monthlyCouponPaper input {
+          font-size: 12px !important;
         }
       }
     </style>
@@ -6076,6 +6119,8 @@ ${totalBox(
 
   `;
 }
+
+
 
 function printMonthlyCoupon(){
 
