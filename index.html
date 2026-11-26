@@ -5400,6 +5400,41 @@ const couponInput = (field, initialValue) => {
         font-size:16px;
       }
 
+/* Décoration végétale du coupon : impression uniquement */
+      #monthlyCouponPaper {
+        position:relative;
+      }
+
+      #monthlyCouponPaper .coupon-botanical-decoration {
+        display:none;
+      }
+
+      body.printing-coupon #monthlyCouponPaper .coupon-botanical-decoration {
+        display:block !important;
+        position:absolute;
+        top:10px;
+        left:12px;
+        right:12px;
+        height:48px;
+        pointer-events:none;
+        z-index:5;
+      }
+
+      body.printing-coupon #monthlyCouponPaper .coupon-branch {
+        position:absolute;
+        top:0;
+        width:48px;
+        height:48px;
+      }
+
+      body.printing-coupon #monthlyCouponPaper .coupon-branch-left {
+        left:0;
+      }
+
+      body.printing-coupon #monthlyCouponPaper .coupon-branch-right {
+        right:0;
+      }
+
       @media(max-width:650px){
         #monthlyCouponPaper {
           padding:14px;
@@ -5412,6 +5447,38 @@ const couponInput = (field, initialValue) => {
     </style>
 
     <div id="monthlyCouponPaper" data-child-id="${escapeAttribute(child.id)}">
+
+    <div class="coupon-botanical-decoration">
+  <svg class="coupon-branch coupon-branch-left"
+       viewBox="0 0 100 100" aria-hidden="true">
+    <path d="M8 88 Q25 60 48 35 Q65 17 88 8"
+          fill="none" stroke="#8fa58b" stroke-width="2"/>
+    <path d="M25 69 Q8 55 12 43 Q28 45 25 69Z"
+          fill="#a9bba3"/>
+    <path d="M43 48 Q28 28 35 17 Q51 25 43 48Z"
+          fill="#8fa58b"/>
+    <path d="M58 32 Q57 12 72 8 Q77 24 58 32Z"
+          fill="#b8c8b0"/>
+    <path d="M30 62 Q47 62 49 76 Q33 80 30 62Z"
+          fill="#d8b5b7"/>
+    <circle cx="35" cy="58" r="3" fill="#d8b5b7"/>
+  </svg>
+
+  <svg class="coupon-branch coupon-branch-right"
+       viewBox="0 0 100 100" aria-hidden="true">
+    <path d="M92 88 Q75 60 52 35 Q35 17 12 8"
+          fill="none" stroke="#8fa58b" stroke-width="2"/>
+    <path d="M75 69 Q92 55 88 43 Q72 45 75 69Z"
+          fill="#a9bba3"/>
+    <path d="M57 48 Q72 28 65 17 Q49 25 57 48Z"
+          fill="#8fa58b"/>
+    <path d="M42 32 Q43 12 28 8 Q23 24 42 32Z"
+          fill="#b8c8b0"/>
+    <path d="M70 62 Q53 62 51 76 Q67 80 70 62Z"
+          fill="#d8b5b7"/>
+    <circle cx="65" cy="58" r="3" fill="#d8b5b7"/>
+  </svg>
+</div>
 
       <div style="
   background:#e8eee5;
