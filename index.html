@@ -1166,6 +1166,15 @@ body.printing-coupon #monthlyCouponPaper .coupon-section > div[style*="border-ra
   font-size: 11px !important;
 }
 
+/* Chiffres et montants : écriture simple à l'impression */
+body.printing-coupon #monthlyCouponPaper .coupon-section > div,
+body.printing-coupon #monthlyCouponPaper .coupon-total,
+body.printing-coupon #monthlyCouponPaper input,
+body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:first-child > div:first-child > div > div {
+  font-family:"Comic Sans MS", sans-serif !important;
+  font-style:normal !important;
+}
+  
 /* Champs modifiables */
 body.printing-coupon #monthlyCouponPaper input {
   width: 65px !important;
