@@ -6033,11 +6033,7 @@ function initialize(){
   renderSalaryList();
   renderPointage();
 
-  const now = new Date();
-
-  document.getElementById("salaryMonth").value =
-    now.getFullYear() + "-" +
-    String(now.getMonth()+1).padStart(2,"0");
+  
 }
 
 (async function verifierAccesApplication() {
