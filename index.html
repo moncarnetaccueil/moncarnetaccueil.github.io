@@ -1825,7 +1825,7 @@ body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:last-chi
 <!-- MODAL ENFANT -->
 <div id="childModal" class="modal">
 
-  <div class="modal-box">
+ <div class="modal-box" oninput="saveChildDraft()" onchange="saveChildDraft()">
 
     <div class="modal-header">
       <h2 id="childModalTitle">👶 Ajouter un enfant</h2>
@@ -2335,15 +2335,35 @@ function openModal(id){
 }
 
 function closeModal(id){
+
+  if(id === "childModal" && !childFormSaved){
+
+    if(!confirm("Tu as des modifications non enregistrées. Souhaites-tu vraiment fermer cette fiche ? Ton brouillon sera conservé.")){
+      return;
+    }
+
+    clearTimeout(childDraftTimer);
+
+    localStorage.setItem(
+      getChildDraftKey(),
+      JSON.stringify(getChildFormData())
+    );
+
+  }
+
   document.getElementById(id).classList.remove("show");
 }
 
 window.addEventListener("click", function(e){
+
   document.querySelectorAll(".modal").forEach(modal => {
+
     if(e.target === modal){
-      modal.classList.remove("show");
+      closeModal(modal.id);
     }
+
   });
+
 });
 
 
@@ -2403,6 +2423,8 @@ function saveProfile(){
 function openChildModal(id = null){
 
   clearChildForm();
+
+  childFormSaved = true;
 
   if(id){
     const child = children.find(c => c.id === id);
@@ -2520,7 +2542,10 @@ document.querySelectorAll(".workday").forEach(cb => {
 
   }
 
-  openModal("childModal");
+openModal("childModal");
+
+restoreChildDraft();
+
 }
 
 function clearChildForm(){
@@ -2568,6 +2593,161 @@ document.querySelectorAll(".workday").forEach(cb => {
   document.querySelectorAll(".workday").forEach(cb => {
     cb.checked = false;
   });
+}
+
+  let childDraftTimer = null;
+  let childFormSaved = true;
+
+  function getChildDraftKey(){
+
+  const id =
+    document.getElementById("childId").value;
+
+  return "afa_child_draft_" + (id || "new");
+}
+
+function getChildFormData(){
+
+  const fields = [
+    "childId",
+    "childLastName",
+    "childFirstName",
+    "childBirthDate",
+    "childHireDate",
+    "parentLastName",
+    "parentFirstName",
+    "parentAddress",
+    "parentPhone",
+    "parentPajemploi",
+    "contractType",
+    "contractStart",
+    "contractEnd",
+    "weeklyHours",
+    "workedWeeks",
+    "absentWeeks",
+    "monthlyHours",
+    "monthlyDays",
+    "hourlyRate",
+    "monthlyGross",
+    "monthlyNet",
+    "maintenanceIndex",
+    "maintenanceFee",
+    "mealFee",
+    "snackFee",
+    "contractNotes"
+  ];
+
+  const data = {};
+
+  fields.forEach(id => {
+    const element = document.getElementById(id);
+    if(element) data[id] = element.value;
+  });
+
+  data.mealHabitual =
+    document.getElementById("mealHabitual").checked;
+
+  data.snackHabitual =
+    document.getElementById("snackHabitual").checked;
+
+  data.workdays = [];
+
+  data.dailyHours = {};
+
+  document.querySelectorAll(".workday").forEach(cb => {
+
+    const day = Number(cb.value);
+
+    if(cb.checked){
+      data.workdays.push(day);
+
+      data.dailyHours[day] = {
+        start: document.getElementById("scheduleStart" + day).value,
+        end: document.getElementById("scheduleEnd" + day).value
+      };
+    }
+
+  });
+
+  return data;
+}
+
+function saveChildDraft(){
+
+  childFormSaved = false;
+
+  clearTimeout(childDraftTimer);
+
+  childDraftTimer = setTimeout(() => {
+
+    const data = getChildFormData();
+
+    localStorage.setItem(
+      getChildDraftKey(),
+      JSON.stringify(data)
+    );
+
+  }, 300);
+
+}
+
+function restoreChildDraft(){
+
+  const saved = localStorage.getItem(getChildDraftKey());
+
+  if(!saved) return false;
+
+if(!confirm("Un brouillon de cette fiche a été retrouvé. Souhaites-tu le récupérer ?")){
+  return false;
+}
+
+  try{
+
+    const data = JSON.parse(saved);
+
+    Object.keys(data).forEach(id => {
+
+      const element = document.getElementById(id);
+
+      if(element && typeof data[id] !== "object"){
+        element.value = data[id];
+      }
+
+    });
+
+    document.getElementById("mealHabitual").checked =
+      data.mealHabitual === true;
+
+    document.getElementById("snackHabitual").checked =
+      data.snackHabitual === true;
+
+    document.querySelectorAll(".workday").forEach(cb => {
+
+      const day = Number(cb.value);
+
+      cb.checked = (data.workdays || []).includes(day);
+
+      const hours = data.dailyHours?.[day] || {};
+
+      document.getElementById("scheduleStart" + day).value =
+        hours.start || "";
+
+      document.getElementById("scheduleEnd" + day).value =
+        hours.end || "";
+
+    });
+
+childFormSaved = false;
+    
+    return true;
+
+  }catch(error){
+
+    console.error("Erreur de récupération du brouillon :", error);
+    return false;
+
+  }
+
 }
 
 async function saveChild(){
@@ -2714,6 +2894,10 @@ snackHabitual:
     JSON.stringify(children)
   );
 
+  clearTimeout(childDraftTimer);
+localStorage.removeItem(getChildDraftKey());
+  childFormSaved = true;
+
   // Synchronisation Supabase si la connexion et l'espace sont disponibles.
   try {
     const db = window.supabaseClient;
@@ -2815,7 +2999,7 @@ snackHabitual:
       STORAGE.children,
       JSON.stringify(children)
     );
-
+    
   } catch(error) {
     console.error("Erreur de synchronisation Supabase :", error);
 
@@ -2835,6 +3019,8 @@ snackHabitual:
     return;
   }
 
+childFormSaved = true;
+  
   programmerSauvegardeEspace();
 
   closeModal("childModal");
