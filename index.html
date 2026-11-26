@@ -1263,15 +1263,17 @@ body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:last-chi
 <section id="enfants" class="page">
 
   <div class="page-title">
-    <h2>👶 Mes enfants accueillis</h2>
-    <p>Les enfants, leurs parents et leurs contrats.</p>
+    <h2>👨‍👩‍👧‍👦 Mes familles</h2>
+    <p>Les familles, leurs enfants et leurs contrats.</p>
   </div>
 
   <div class="actions no-print" style="margin-bottom:20px;">
-    <button class="btn" onclick="openChildModal()">＋ Ajouter un enfant</button>
+    <button class="btn" onclick="openFamilyModal()">
+      ＋ Créer une famille
+    </button>
   </div>
 
-  <div id="childrenList" class="children-grid"></div>
+  <div id="familiesList" class="children-grid"></div>
 
 </section>
 
@@ -1833,7 +1835,7 @@ body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:last-chi
       <button class="close" onclick="closeModal('childModal')">×</button>
     </div>
 
-    <input type="hidden" id="childId">
+   <input type="hidden" id="childFamilyId">
 
     <h3 class="section-title">Informations de l’enfant</h3>
 
@@ -2104,6 +2106,79 @@ body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:last-chi
 
   </div>
 </div>
+
+<!-- MODAL FAMILLE -->
+<div id="familyModal" class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-header">
+      <h2 id="familyModalTitle">👨‍👩‍👧 Nouvelle famille</h2>
+      <button class="close" onclick="closeModal('familyModal')">×</button>
+    </div>
+
+    <input type="hidden" id="familyId">
+
+    <h3 class="section-title">Premier parent</h3>
+
+    <div class="grid">
+
+      <div class="field">
+        <label>Nom</label>
+        <input id="familyParent1LastName" type="text">
+      </div>
+
+      <div class="field">
+        <label>Prénom</label>
+        <input id="familyParent1FirstName" type="text">
+      </div>
+
+    </div>
+
+    <h3 class="section-title">Deuxième parent (facultatif)</h3>
+
+    <div class="grid">
+
+      <div class="field">
+        <label>Nom</label>
+        <input id="familyParent2LastName" type="text">
+      </div>
+
+      <div class="field">
+        <label>Prénom</label>
+        <input id="familyParent2FirstName" type="text">
+      </div>
+
+    </div>
+
+    <h3 class="section-title">Coordonnées de la famille</h3>
+
+    <div class="grid">
+
+      <div class="field">
+        <label>Adresse</label>
+        <input id="familyAddress" type="text">
+      </div>
+
+      <div class="field">
+        <label>Téléphone</label>
+        <input id="familyPhone" type="tel">
+      </div>
+
+      <div class="field">
+        <label>Numéro Pajemploi</label>
+        <input id="familyPajemploi" type="text">
+      </div>
+
+    </div>
+
+    <div class="actions" style="margin-top:20px;">
+      <button class="btn" onclick="saveFamily()">Enregistrer</button>
+      <button class="btn light" onclick="closeModal('familyModal')">Annuler</button>
+    </div>
+
+  </div>
+</div>
   
 <!-- MODAL EVENEMENT -->
 <div id="eventModal" class="modal">
@@ -2169,6 +2244,7 @@ body.printing-coupon #monthlyCouponPaper .coupon-columns > .coupon-card:last-chi
 
 const STORAGE = {
   children: "afa_children",
+  families: "afa_families",
   events: "afa_events",
   sheets: "afa_sheets",
   profile: "afa_profile",
@@ -2177,6 +2253,7 @@ const STORAGE = {
 };
 
 let children = JSON.parse(localStorage.getItem(STORAGE.children) || "[]");
+let families = JSON.parse(localStorage.getItem(STORAGE.families) || "[]");
 let events = JSON.parse(localStorage.getItem(STORAGE.events) || "[]");
 let sheets = JSON.parse(localStorage.getItem(STORAGE.sheets) || "{}");
 let profile = JSON.parse(localStorage.getItem(STORAGE.profile) || "{}");
@@ -2202,6 +2279,7 @@ async function sauvegarderEspace(){
 
   const data = {
     children,
+    families,
     events,
     sheets,
     profile,
@@ -2233,6 +2311,72 @@ function programmerSauvegardeEspace(){
   }, 500);
 }
 
+async function migrerEnfantsVersFamilles(){
+
+  let modification = false;
+
+  children.forEach(child => {
+
+    // L'enfant possède déjà une famille : on ne touche à rien.
+    if(child.familyId) return;
+
+    const parent = child.parent || {};
+
+    const familyId = "family_" + child.id;
+
+    // Récupérer une éventuelle famille déjà créée.
+    let family = families.find(f => f.id === familyId);
+
+    if(!family){
+
+      family = {
+        id: familyId,
+
+        name: parent.lastName || child.lastName || "Famille",
+
+        parent1: {
+          lastName: parent.lastName || "",
+          firstName: parent.firstName || ""
+        },
+
+        parent2: {
+          lastName: "",
+          firstName: ""
+        },
+
+        address: parent.address || "",
+        phone: parent.phone || "",
+        pajemploi: parent.pajemploi || ""
+      };
+
+      families.push(family);
+    }
+
+    // On rattache l'enfant sans modifier ses autres informations.
+    child.familyId = familyId;
+
+    modification = true;
+
+  });
+
+  if(modification){
+
+    localStorage.setItem(
+      STORAGE.children,
+      JSON.stringify(children)
+    );
+
+    localStorage.setItem(
+      STORAGE.families,
+      JSON.stringify(families)
+    );
+
+    await sauvegarderEspace();
+
+  }
+
+}
+  
 async function chargerEspace(){
 
   const db = window.supabaseClient;
@@ -2251,6 +2395,7 @@ async function chargerEspace(){
     const donnees = ligne.data;
 
     children = Array.isArray(donnees.children) ? donnees.children : children;
+    families = Array.isArray(donnees.families) ? donnees.families : families;
     events = Array.isArray(donnees.events) ? donnees.events : events;
     sheets = donnees.sheets || sheets;
     profile = donnees.profile || profile;
@@ -2259,7 +2404,11 @@ async function chargerEspace(){
 
   }
 
+  // Migration automatique des enfants vers leurs familles
+  await migrerEnfantsVersFamilles();
+
   localStorage.setItem(STORAGE.children, JSON.stringify(children));
+  localStorage.setItem(STORAGE.families, JSON.stringify(families));
   localStorage.setItem(STORAGE.events, JSON.stringify(events));
   localStorage.setItem(STORAGE.sheets, JSON.stringify(sheets));
   localStorage.setItem(STORAGE.profile, JSON.stringify(profile));
@@ -2421,21 +2570,64 @@ function saveProfile(){
    ENFANTS
 ========================= */
 
-function openChildModal(id = null){
+function openFamilyModal(id = null){
+
+  const family = id
+    ? families.find(f => f.id === id)
+    : null;
+
+  document.getElementById("familyModalTitle").textContent =
+    family ? "👨‍👩‍👧 Modifier la famille" : "👨‍👩‍👧 Nouvelle famille";
+
+  document.getElementById("familyId").value =
+    family?.id || "";
+
+  document.getElementById("familyParent1LastName").value =
+    family?.parent1?.lastName || "";
+
+  document.getElementById("familyParent1FirstName").value =
+    family?.parent1?.firstName || "";
+
+  document.getElementById("familyParent2LastName").value =
+    family?.parent2?.lastName || "";
+
+  document.getElementById("familyParent2FirstName").value =
+    family?.parent2?.firstName || "";
+
+  document.getElementById("familyAddress").value =
+    family?.address || "";
+
+  document.getElementById("familyPhone").value =
+    family?.phone || "";
+
+  document.getElementById("familyPajemploi").value =
+    family?.pajemploi || "";
+
+  openModal("familyModal");
+
+}
+  
+function openChildModal(id = null, familyId = null){
 
   clearChildForm();
 
   childFormSaved = true;
 
   if(id){
+
     const child = children.find(c => c.id === id);
 
     if(!child) return;
+
+    const family = families.find(f => f.id === child.familyId);
 
     document.getElementById("childModalTitle").textContent =
       "👶 Modifier l’enfant";
 
     document.getElementById("childId").value = child.id;
+
+    document.getElementById("childFamilyId").value =
+      child.familyId || "";
 
     document.getElementById("childLastName").value =
       child.lastName || "";
@@ -2449,20 +2641,22 @@ function openChildModal(id = null){
     document.getElementById("childHireDate").value =
       child.hireDate || "";
 
+    const parent = family?.parent1 || child.parent || {};
+
     document.getElementById("parentLastName").value =
-      child.parent?.lastName || "";
+      parent.lastName || "";
 
     document.getElementById("parentFirstName").value =
-      child.parent?.firstName || "";
+      parent.firstName || "";
 
     document.getElementById("parentAddress").value =
-      child.parent?.address || "";
+      family?.address || child.parent?.address || "";
 
     document.getElementById("parentPhone").value =
-      child.parent?.phone || "";
+      family?.phone || child.parent?.phone || "";
 
     document.getElementById("parentPajemploi").value =
-      child.parent?.pajemploi || "";
+      family?.pajemploi || child.parent?.pajemploi || "";
 
     const c = child.contract || {};
 
@@ -2494,13 +2688,13 @@ function openChildModal(id = null){
       c.hourlyRate || "";
 
     document.getElementById("monthlyGross").value =
-  c.monthlyGross ?? "";
+      c.monthlyGross ?? "";
 
-document.getElementById("monthlyNet").value =
-  c.monthlyNet ?? "";
+    document.getElementById("monthlyNet").value =
+      c.monthlyNet ?? "";
 
     document.getElementById("maintenanceIndex").value =
-  c.maintenanceIndex ?? 0.435;
+      c.maintenanceIndex ?? 0.435;
 
     document.getElementById("maintenanceFee").value =
       c.maintenanceFee || "";
@@ -2512,46 +2706,139 @@ document.getElementById("monthlyNet").value =
       c.snackFee || "";
 
     document.getElementById("mealHabitual").checked =
-  c.mealHabitual === true;
+      c.mealHabitual === true;
 
-document.getElementById("snackHabitual").checked =
-  c.snackHabitual === true;
+    document.getElementById("snackHabitual").checked =
+      c.snackHabitual === true;
 
-   document.getElementById("contractNotes").value =
-  c.notes || "";
+    document.getElementById("contractNotes").value =
+      c.notes || "";
 
-document.querySelectorAll(".workday").forEach(cb => {
+    document.querySelectorAll(".workday").forEach(cb => {
 
-  const day = Number(cb.value);
+      const day = Number(cb.value);
 
-  cb.checked = (c.workdays || []).includes(day);
+      cb.checked = (c.workdays || []).includes(day);
 
-  const horaires = c.dailyHours?.[day] || {};
+      const horaires = c.dailyHours?.[day] || {};
 
-  document.getElementById("scheduleStart" + day).value =
-    horaires.start || "";
+      document.getElementById("scheduleStart" + day).value =
+        horaires.start || "";
 
-  document.getElementById("scheduleEnd" + day).value =
-    horaires.end || "";
+      document.getElementById("scheduleEnd" + day).value =
+        horaires.end || "";
 
-});
+    });
 
   } else {
 
     document.getElementById("childModalTitle").textContent =
       "👶 Ajouter un enfant";
 
+    document.getElementById("childFamilyId").value =
+      familyId || "";
+
+    if(familyId){
+
+      const family = families.find(f => f.id === familyId);
+
+      if(family){
+
+        document.getElementById("parentLastName").value =
+          family.parent1?.lastName || "";
+
+        document.getElementById("parentFirstName").value =
+          family.parent1?.firstName || "";
+
+        document.getElementById("parentAddress").value =
+          family.address || "";
+
+        document.getElementById("parentPhone").value =
+          family.phone || "";
+
+        document.getElementById("parentPajemploi").value =
+          family.pajemploi || "";
+
+      }
+
+    }
+
   }
 
-openModal("childModal");
+  openModal("childModal");
 
-restoreChildDraft();
+  restoreChildDraft();
 
 }
+
+  async function saveFamily(){
+
+  const id =
+    document.getElementById("familyId").value;
+
+  const parent1 = {
+    lastName:
+      document.getElementById("familyParent1LastName").value.trim(),
+
+    firstName:
+      document.getElementById("familyParent1FirstName").value.trim()
+  };
+
+  const parent2 = {
+    lastName:
+      document.getElementById("familyParent2LastName").value.trim(),
+
+    firstName:
+      document.getElementById("familyParent2FirstName").value.trim()
+  };
+
+  if(!parent1.lastName || !parent1.firstName){
+    alert("Merci de renseigner le nom et le prénom du premier parent.");
+    return;
+  }
+
+  const family = {
+    id: id || "family_" + Date.now(),
+
+    name: parent1.lastName,
+
+    parent1,
+    parent2,
+
+    address:
+      document.getElementById("familyAddress").value.trim(),
+
+    phone:
+      document.getElementById("familyPhone").value.trim(),
+
+    pajemploi:
+      document.getElementById("familyPajemploi").value.trim()
+  };
+
+  const index = families.findIndex(f => f.id === family.id);
+
+  if(index >= 0){
+    families[index] = family;
+  } else {
+    families.push(family);
+  }
+
+  localStorage.setItem(STORAGE.families, JSON.stringify(families));
+
+  await sauvegarderEspace();
+
+  closeModal("familyModal");
+
+  renderFamilies();
+
+}
+  
 
 function clearChildForm(){
 
   document.getElementById("childId").value = "";
+  document.getElementById("childFamilyId").value = "";
+
   document.getElementById("childLastName").value = "";
   document.getElementById("childFirstName").value = "";
   document.getElementById("childBirthDate").value = "";
@@ -2573,44 +2860,55 @@ function clearChildForm(){
   document.getElementById("monthlyDays").value = "";
   document.getElementById("hourlyRate").value = "";
   document.getElementById("monthlyGross").value = "";
-document.getElementById("monthlyNet").value = "";
+  document.getElementById("monthlyNet").value = "";
   document.getElementById("maintenanceIndex").value = "0.435";
   document.getElementById("maintenanceFee").value = "";
   document.getElementById("mealFee").value = "";
   document.getElementById("snackFee").value = "";
+
   document.getElementById("mealHabitual").checked = false;
-document.getElementById("snackHabitual").checked = false;
-document.querySelectorAll(".workday").forEach(cb => {
+  document.getElementById("snackHabitual").checked = false;
 
-  cb.checked = false;
-
-  const day = Number(cb.value);
-
-  document.getElementById("scheduleStart" + day).value = "";
-  document.getElementById("scheduleEnd" + day).value = "";
-
-});  document.getElementById("contractNotes").value = "";
+  document.getElementById("contractNotes").value = "";
 
   document.querySelectorAll(".workday").forEach(cb => {
+
     cb.checked = false;
+
+    const day = Number(cb.value);
+
+    document.getElementById("scheduleStart" + day).value = "";
+    document.getElementById("scheduleEnd" + day).value = "";
+
   });
+
+  
 }
-
-  let childDraftTimer = null;
-  let childFormSaved = true;
-
-  function getChildDraftKey(){
+function getChildDraftKey(){
 
   const id =
     document.getElementById("childId").value;
 
-  return "afa_child_draft_" + (id || "new");
+  const familyId =
+    document.getElementById("childFamilyId").value;
+
+  if(id){
+    return "afa_child_draft_" + id;
+  }
+
+  if(familyId){
+    return "afa_child_draft_family_" + familyId;
+  }
+
+  return "afa_child_draft_new";
 }
+  
 
 function getChildFormData(){
 
   const fields = [
     "childId",
+    "childFamilyId",
     "childLastName",
     "childFirstName",
     "childBirthDate",
@@ -2660,12 +2958,14 @@ function getChildFormData(){
     const day = Number(cb.value);
 
     if(cb.checked){
+
       data.workdays.push(day);
 
       data.dailyHours[day] = {
         start: document.getElementById("scheduleStart" + day).value,
         end: document.getElementById("scheduleEnd" + day).value
       };
+
     }
 
   });
@@ -2698,15 +2998,18 @@ function restoreChildDraft(){
 
   if(!saved) return false;
 
-if(!confirm("Un brouillon de cette fiche a été retrouvé. Souhaites-tu le récupérer ?")){
-  return false;
-}
+  if(!confirm("Un brouillon de cette fiche a été retrouvé. Souhaites-tu le récupérer ?")){
+    return false;
+  }
 
   try{
 
     const data = JSON.parse(saved);
 
     Object.keys(data).forEach(id => {
+
+      // Le rattachement à la famille reste celui choisi à l'ouverture.
+      if(id === "childFamilyId") return;
 
       const element = document.getElementById(id);
 
@@ -2738,8 +3041,8 @@ if(!confirm("Un brouillon de cette fiche a été retrouvé. Souhaites-tu le réc
 
     });
 
-childFormSaved = false;
-    
+    childFormSaved = false;
+
     return true;
 
   }catch(error){
@@ -2790,10 +3093,15 @@ document.querySelectorAll(".workday").forEach(cb => {
 
 const existingChild = children.find(c => c.id === id);
 
-  const child = {
+const child = {
     id,
     lastName,
     firstName,
+
+    familyId:
+      document.getElementById("childFamilyId").value ||
+      existingChild?.familyId ||
+      "",
 
     color: existingChild?.color || (
       "hsl(" + Math.floor(Math.random() * 360) + ", 55%, 65%)"
@@ -3031,18 +3339,20 @@ childFormSaved = true;
 
   alert("Enfant enregistré et synchronisé avec Supabase 🌿");
 }
-function renderChildren(){
+  
+function renderFamilies(){
 
-  const container =
-    document.getElementById("childrenList");
+  const container = document.getElementById("familiesList");
 
-  if(children.length === 0){
+  if(!container) return;
+
+  if(families.length === 0){
 
     container.innerHTML = `
       <div class="card empty" style="grid-column:1/-1;">
-        <p>👶 Aucun enfant enregistré pour le moment.</p>
-        <button class="btn" onclick="openChildModal()">
-          ＋ Ajouter un enfant
+        <p>👨‍👩‍👧‍👦 Aucune famille enregistrée pour le moment.</p>
+        <button class="btn" onclick="openFamilyModal()">
+          ＋ Créer une famille
         </button>
       </div>
     `;
@@ -3050,79 +3360,90 @@ function renderChildren(){
     return;
   }
 
-  container.innerHTML = children.map(child => {
+  container.innerHTML = families.map(family => {
 
-    const c = child.contract || {};
+    const enfantsFamille = children.filter(
+      child => child.familyId === family.id
+    );
 
     return `
-      <div class="child-card"
-        onclick="openChildDetail('${child.id}')"
-        style="cursor:pointer;">
+      <div class="child-card">
 
-        <h3>
-          <span style="
-            display:inline-block;
-            width:12px;
-            height:12px;
-            border-radius:50%;
-            background:${escapeHtml(child.color || '#8fa58b')};
-            margin-right:5px;
-            vertical-align:middle;
-          "></span>
-          ${escapeHtml(child.firstName)} ${escapeHtml(child.lastName)}
-        </h3>
+        <h3>👨‍👩‍👧‍👦 Famille ${escapeHtml(family.name || family.parent1?.lastName || "")}</h3>
 
         <p>
-          <strong>Date de naissance :</strong>
-          ${formatDate(child.birthDate)}
+          <strong>Parent 1 :</strong>
+          ${escapeHtml((family.parent1?.firstName || "") + " " + (family.parent1?.lastName || ""))}
+        </p>
+
+        ${family.parent2?.firstName || family.parent2?.lastName ? `
+          <p>
+            <strong>Parent 2 :</strong>
+            ${escapeHtml((family.parent2?.firstName || "") + " " + (family.parent2?.lastName || ""))}
+          </p>
+        ` : ""}
+
+        <p>
+          <strong>Téléphone :</strong>
+          ${escapeHtml(family.phone || "—")}
         </p>
 
         <p>
-          <strong>Embauche :</strong>
-          ${formatDate(child.hireDate)}
+          <strong>Adresse :</strong>
+          ${escapeHtml(family.address || "—")}
         </p>
 
-        <p>
-          <strong>Parent :</strong>
-          ${escapeHtml((child.parent?.firstName || "") + " " + (child.parent?.lastName || ""))}
-        </p>
+        <div style="
+          margin-top:18px;
+          padding-top:12px;
+          border-top:1px solid #e5ddcf;
+        ">
 
-        <p>
-          <strong>Contrat :</strong>
-          ${escapeHtml(c.type || "—")}
-        </p>
+          <h4>👶 Les enfants de la famille</h4>
 
-        <p>
-          <strong>Horaires :</strong>
-          ${escapeHtml(
-            (c.workdays || []).map(day => {
-              const jours = ["Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam."];
-              const h = c.dailyHours?.[day];
+          ${enfantsFamille.length === 0 ? `
+            <p>Aucun enfant enregistré pour cette famille.</p>
+          ` : enfantsFamille.map(child => `
+            <div
+              onclick="openChildDetail('${child.id}')"
+              style="
+                padding:10px;
+                margin:8px 0;
+                background:#f5f0e7;
+                border-radius:12px;
+                cursor:pointer;
+              "
+            >
+              <strong>
+                <span style="
+                  display:inline-block;
+                  width:10px;
+                  height:10px;
+                  border-radius:50%;
+                  background:${escapeHtml(child.color || '#8fa58b')};
+                  margin-right:6px;
+                "></span>
+                ${escapeHtml(child.firstName)} ${escapeHtml(child.lastName)}
+              </strong>
 
-              return jours[day] + (
-                h && h.start && h.end
-                  ? " " + h.start + "-" + h.end
-                  : ""
-              );
-            }).join(" · ") || c.usualHours || "—"
-          )}
-        </p>
+              <p style="margin:4px 0 0;font-size:13px;">
+                Né(e) le ${formatDate(child.birthDate)}
+              </p>
+            </div>
+          `).join("")}
+
+        </div>
 
         <div class="actions" style="margin-top:15px;">
 
           <button class="btn small"
-            onclick="event.stopPropagation(); openChildModal('${child.id}')">
-            Modifier
+            onclick="openFamilyModal('${family.id}')">
+            Modifier la famille
           </button>
 
           <button class="btn light small"
-            onclick="event.stopPropagation(); openPresenceForChild('${child.id}')">
-            📝 Présence
-          </button>
-
-          <button class="btn danger small"
-            onclick="event.stopPropagation(); deleteChild('${child.id}')">
-            Supprimer
+            onclick="openChildModal(null, '${family.id}')">
+            ＋ Ajouter un enfant
           </button>
 
         </div>
@@ -3131,7 +3452,16 @@ function renderChildren(){
     `;
 
   }).join("");
+
 }
+
+
+// Compatibilité avec les anciens appels du site
+function renderChildren(){
+  renderFamilies();
+}
+
+  
 function chargerDestinatairesJournal(){
 
   const container =
@@ -3304,8 +3634,12 @@ function openChildDetail(id){
 
   if(!child) return;
 
+  const family = families.find(f => f.id === child.familyId);
+
   const c = child.contract || {};
-  const p = child.parent || {};
+
+  const p = family?.parent1 || child.parent || {};
+  const p2 = family?.parent2 || {};
 
   const show = value =>
     value !== undefined && value !== null && value !== ""
@@ -3327,8 +3661,8 @@ function openChildDetail(id){
     );
   }).join("<br>") || show(c.usualHours);
 
- document.getElementById("childDetailTitle").innerHTML =
-    ` <span style="
+  document.getElementById("childDetailTitle").innerHTML =
+    `<span style="
       display:inline-block;
       width:13px;
       height:13px;
@@ -3349,12 +3683,17 @@ function openChildDetail(id){
     </div>
 
     <div class="child-detail-section">
-      <h3>👨‍👩‍👧 Parent employeur</h3>
-      <p><strong>Nom :</strong> ${show(p.lastName)}</p>
-      <p><strong>Prénom :</strong> ${show(p.firstName)}</p>
-      <p><strong>Adresse :</strong> ${show(p.address)}</p>
-      <p><strong>Téléphone :</strong> ${show(p.phone)}</p>
-      <p><strong>N° Pajemploi :</strong> ${show(p.pajemploi)}</p>
+      <h3>👨‍👩‍👧 Famille employeur</h3>
+
+      <p><strong>Parent 1 :</strong> ${show(p.firstName)} ${show(p.lastName)}</p>
+
+      ${p2.firstName || p2.lastName ? `
+        <p><strong>Parent 2 :</strong> ${show(p2.firstName)} ${show(p2.lastName)}</p>
+      ` : ""}
+
+      <p><strong>Adresse :</strong> ${show(family?.address || child.parent?.address)}</p>
+      <p><strong>Téléphone :</strong> ${show(family?.phone || child.parent?.phone)}</p>
+      <p><strong>N° Pajemploi :</strong> ${show(family?.pajemploi || child.parent?.pajemploi)}</p>
     </div>
 
     <div class="child-detail-section">
@@ -3369,39 +3708,38 @@ function openChildDetail(id){
       <p><strong>Jours mensualisés :</strong> ${show(c.monthlyDays)}</p>
     </div>
 
-   <div class="child-detail-section">
-  <h3>💶 Tarifs et indemnités</h3>
+    <div class="child-detail-section">
+      <h3>💶 Tarifs et indemnités</h3>
 
-  <p><strong>Tarif horaire brut :</strong> ${show(c.hourlyRate)} €</p>
+      <p><strong>Tarif horaire brut :</strong> ${show(c.hourlyRate)} €</p>
+      <p><strong>Salaire mensuel brut :</strong> ${show(c.monthlyGross)} €</p>
+      <p><strong>Salaire mensuel net :</strong> ${show(c.monthlyNet)} €</p>
 
-  <p><strong>Salaire mensuel brut :</strong> ${show(c.monthlyGross)} €</p>
-<p><strong>Salaire mensuel net :</strong> ${show(c.monthlyNet)} €</p>
+      <div style="
+        background:#f5f0e7;
+        border:1px solid #e5ddcf;
+        border-radius:16px;
+        padding:14px;
+        margin:15px 0;
+      ">
+        <h4 style="margin:0 0 10px;color:#735b47;">
+          Indemnité d'entretien
+        </h4>
 
-  <div style="
-    background:#f5f0e7;
-    border:1px solid #e5ddcf;
-    border-radius:16px;
-    padding:14px;
-    margin:15px 0;
-  ">
-    <h4 style="margin:0 0 10px;color:#735b47;">
-      Indemnité d'entretien
-    </h4>
+        <p>
+          <strong>Indice de référence :</strong>
+          ${show(c.maintenanceIndex ?? 0.435)}
+        </p>
 
-    <p>
-      <strong>Indice de référence :</strong>
-      ${show(c.maintenanceIndex ?? 0.435)}
-    </p>
+        <p style="margin-bottom:0;">
+          <strong>Calcul :</strong>
+          Selon la durée journalière prévue au contrat
+        </p>
+      </div>
 
-    <p style="margin-bottom:0;">
-      <strong>Calcul :</strong>
-      Selon la durée journalière prévue au contrat
-    </p>
-  </div>
-
-  <p><strong>Indemnité repas :</strong> ${show(c.mealFee)} €</p>
-  <p><strong>Indemnité goûter :</strong> ${show(c.snackFee)} €</p>
-</div>
+      <p><strong>Indemnité repas :</strong> ${show(c.mealFee)} €</p>
+      <p><strong>Indemnité goûter :</strong> ${show(c.snackFee)} €</p>
+    </div>
 
     <div class="child-detail-section">
       <h3>🕒 Horaires prévus</h3>
@@ -3434,7 +3772,8 @@ function openChildDetail(id){
     closeModal("childDetailModal");
     deleteChild(id);
   };
- openModal("childDetailModal");
+
+  openModal("childDetailModal");
 
 }
   
