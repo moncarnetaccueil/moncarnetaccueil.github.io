@@ -3758,10 +3758,17 @@ function openChildDetail(id){
 
   `;
 
-  document.getElementById("childDetailEditButton").onclick = () => {
-    closeModal("childDetailModal");
-    openChildModal(id);
-  };
+ document.getElementById("childDetailEditButton").onclick = () => {
+
+  const childId = id;
+
+  document.getElementById("childDetailModal").classList.remove("show");
+
+  setTimeout(() => {
+    openChildModal(childId);
+  }, 100);
+
+};
 
   document.getElementById("childDetailPresenceButton").onclick = () => {
     closeModal("childDetailModal");
