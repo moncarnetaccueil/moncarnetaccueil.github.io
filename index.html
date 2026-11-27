@@ -2615,7 +2615,7 @@ try {
   clearChildForm();
   alert("Le formulaire a été réinitialisé");
 } catch(error) {
-  alert("Erreur dans clearChildForm : " + error.message);
+  alert("Erreur : " + error.stack);
   return;
 }
 
