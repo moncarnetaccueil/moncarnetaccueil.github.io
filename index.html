@@ -2626,7 +2626,14 @@ try {
 
     const child = children.find(c => c.id === id);
 
-    if(!child) return;
+if(!child){
+  alert(
+    "Enfant introuvable !\n\nID demandé : " + id +
+    "\n\nID des enfants enregistrés : " +
+    children.map(c => c.id).join(", ")
+  );
+  return;
+}
 
     const family = families.find(f => f.id === child.familyId);
 
