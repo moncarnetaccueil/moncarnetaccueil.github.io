@@ -2637,6 +2637,8 @@ if(!child){
 
     const family = families.find(f => f.id === child.familyId);
 
+    alert("Enfant retrouvé : " + child.firstName + "\nFamille : " + (family ? "retrouvée" : "non retrouvée"));
+
     document.getElementById("childModalTitle").textContent =
       "👶 Modifier l’enfant";
 
