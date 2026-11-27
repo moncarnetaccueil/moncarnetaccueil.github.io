@@ -2845,54 +2845,63 @@ try {
 
 function clearChildForm(){
 
-  document.getElementById("childId").value = "";
-  document.getElementById("childFamilyId").value = "";
+  function setValue(id, value){
+    const element = document.getElementById(id);
+    if(element) element.value = value;
+  }
 
-  document.getElementById("childLastName").value = "";
-  document.getElementById("childFirstName").value = "";
-  document.getElementById("childBirthDate").value = "";
-  document.getElementById("childHireDate").value = "";
+  function setChecked(id, value){
+    const element = document.getElementById(id);
+    if(element) element.checked = value;
+  }
 
-  document.getElementById("parentLastName").value = "";
-  document.getElementById("parentFirstName").value = "";
-  document.getElementById("parentAddress").value = "";
-  document.getElementById("parentPhone").value = "";
-  document.getElementById("parentPajemploi").value = "";
+  setValue("childId", "");
+  setValue("childFamilyId", "");
 
-  document.getElementById("contractType").value = "CDI";
-  document.getElementById("contractStart").value = "";
-  document.getElementById("contractEnd").value = "";
-  document.getElementById("weeklyHours").value = "";
-  document.getElementById("workedWeeks").value = "";
-  document.getElementById("absentWeeks").value = "";
-  document.getElementById("monthlyHours").value = "";
-  document.getElementById("monthlyDays").value = "";
-  document.getElementById("hourlyRate").value = "";
-  document.getElementById("monthlyGross").value = "";
-  document.getElementById("monthlyNet").value = "";
-  document.getElementById("maintenanceIndex").value = "0.435";
-  document.getElementById("maintenanceFee").value = "";
-  document.getElementById("mealFee").value = "";
-  document.getElementById("snackFee").value = "";
+  setValue("childLastName", "");
+  setValue("childFirstName", "");
+  setValue("childBirthDate", "");
+  setValue("childHireDate", "");
 
-  document.getElementById("mealHabitual").checked = false;
-  document.getElementById("snackHabitual").checked = false;
+  setValue("parentLastName", "");
+  setValue("parentFirstName", "");
+  setValue("parentAddress", "");
+  setValue("parentPhone", "");
+  setValue("parentPajemploi", "");
 
-  document.getElementById("contractNotes").value = "";
+  setValue("contractType", "CDI");
+  setValue("contractStart", "");
+  setValue("contractEnd", "");
+  setValue("weeklyHours", "");
+  setValue("workedWeeks", "");
+  setValue("absentWeeks", "");
+  setValue("monthlyHours", "");
+  setValue("monthlyDays", "");
+  setValue("hourlyRate", "");
+  setValue("monthlyGross", "");
+  setValue("monthlyNet", "");
+  setValue("maintenanceIndex", "0.435");
+  setValue("maintenanceFee", "");
+  setValue("mealFee", "");
+  setValue("snackFee", "");
+
+  setChecked("mealHabitual", false);
+  setChecked("snackHabitual", false);
+
+  setValue("contractNotes", "");
 
   document.querySelectorAll(".workday").forEach(cb => {
-
     cb.checked = false;
 
     const day = Number(cb.value);
 
-    document.getElementById("scheduleStart" + day).value = "";
-    document.getElementById("scheduleEnd" + day).value = "";
-
+    setValue("scheduleStart" + day, "");
+    setValue("scheduleEnd" + day, "");
   });
 
-  
 }
+
+  
 function getChildDraftKey(){
 
   const id =
